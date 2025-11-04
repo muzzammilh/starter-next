@@ -14,17 +14,25 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 Seeding database...');
 
-  // Example: Create a test user
+  // Example: Create a test user with profile
   const user = await prisma.user.upsert({
     where: { email: 'test@example.com' },
     update: {},
     create: {
       email: 'test@example.com',
-      name: 'Test User',
+      profile: {
+        create: {
+          name: 'Test User',
+          bio: 'A test user for development',
+        },
+      },
+    },
+    include: {
+      profile: true,
     },
   });
 
-  console.log('✅ Created user:', user);
+  console.log('✅ Created user with profile:', user);
 
   // Add more seed data as needed
 }

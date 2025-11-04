@@ -13,7 +13,9 @@ import { prisma } from '@/lib/db';
 export async function GET() {
   try {
     const users = await prisma.user.findMany({
-      orderBy: { createdAt: 'desc' },
+      include: {
+        profile: true, // Include profile data if available
+      },
     });
     
     return NextResponse.json(users);
@@ -38,10 +40,18 @@ export async function POST(request: Request) {
       );
     }
 
+    // Create user with optional profile
     const user = await prisma.user.create({
       data: {
         email,
-        name: name || null,
+        profile: name ? {
+          create: {
+            name,
+          },
+        } : undefined,
+      },
+      include: {
+        profile: true,
       },
     });
 
