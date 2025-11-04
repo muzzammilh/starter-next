@@ -7,10 +7,12 @@
  */
 
 import { SignInButton } from "@/components/auth/SignInButton";
+import { CredentialsForm } from "@/components/auth/CredentialsForm";
 import { config } from "@/lib/config";
 
 export default function SignInPage() {
   const providers = config.auth.providers;
+  const hasOAuthProviders = providers.google || providers.facebook || providers.apple || providers.twitter || providers.github || providers.email;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -19,6 +21,23 @@ export default function SignInPage() {
           <h1 className="text-3xl font-bold">{config.app.name}</h1>
           <p className="mt-2 text-gray-600">Sign in to your account</p>
         </div>
+
+        {/* Credentials Form */}
+        {providers.credentials && (
+          <>
+            <CredentialsForm />
+            {hasOAuthProviders && (
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-white text-gray-500">Or continue with</span>
+                </div>
+              </div>
+            )}
+          </>
+        )}
 
         <div className="space-y-3">
           {/* Google Sign In */}
@@ -99,19 +118,6 @@ export default function SignInPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
               Continue with Email
-            </SignInButton>
-          )}
-
-          {/* Credentials (Email/Password) */}
-          {providers.credentials && (
-            <SignInButton
-              provider="credentials"
-              className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-              Sign in with Email & Password
             </SignInButton>
           )}
         </div>

@@ -21,6 +21,7 @@ import GitHubProvider from "next-auth/providers/github";
 import EmailProvider from "next-auth/providers/email";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { config } from "@/lib/config";
+import { authenticateUser } from "./credentials";
 
 /**
  * Build the providers array based on configuration
@@ -83,32 +84,27 @@ const allProviders = [
 
   // Custom Credentials (Email/Password)
   // Requires: ENABLE_CREDENTIALS_AUTH=true
-  // TODO: Implement your own authentication logic in the authorize function
+  // Dev mode: Use demo@example.com / password
+  // Production: Implement your own logic in lib/auth/credentials.ts
   config.auth.providers.credentials &&
     CredentialsProvider({
-      name: "Credentials",
+      id: "credentials",
+      name: "Email & Password",
       credentials: {
-        email: { label: "Email", type: "email", placeholder: "user@example.com" },
-        password: { label: "Password", type: "password" },
+        email: { label: "Email", type: "email", placeholder: "demo@example.com" },
+        password: { label: "Password", type: "password", placeholder: "password" },
       },
       async authorize(credentials) {
-        // TODO: Implement your own authentication logic
-        // Example:
-        // 1. Validate credentials format
-        // 2. Query your database for the user
-        // 3. Verify password hash
-        // 4. Return user object if valid, null if invalid
-        
         if (!credentials?.email || !credentials?.password) {
           return null;
         }
 
-        // Replace this with your actual authentication logic
-        // const user = await db.user.findUnique({ where: { email: credentials.email } });
-        // const isValid = await verifyPassword(credentials.password, user.passwordHash);
-        // if (isValid) return { id: user.id, email: user.email, name: user.name };
-        
-        return null;
+        const user = await authenticateUser(
+          credentials.email as string,
+          credentials.password as string
+        );
+
+        return user;
       },
     }),
 ];

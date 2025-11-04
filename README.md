@@ -61,6 +61,7 @@ This boilerplate includes a complete NextAuth.js authentication system with a **
 - **Locked Auth Schema**: Core tables (`User`, `Account`, `Session`, `VerificationToken`) never change
 - **Flexible Extensions**: Add your own tables (`UserProfile`, `UserSettings`, etc.) that reference `User`
 - **Multiple OAuth Providers**: Google, Facebook, Apple, X (Twitter), GitHub
+- **Email/Password Authentication**: Traditional credentials-based login
 - **Type-Safe**: Full TypeScript support with proper session typing
 - **Ready to Use**: Sign-in pages, components, and utilities included
 
@@ -75,7 +76,15 @@ One user can sign in through multiple providers (Google, Facebook, etc.). The `A
    openssl rand -base64 32
    ```
 
-2. **Configure OAuth Providers** (choose at least one):
+2. **Choose Authentication Method:**
+
+   **Option A: Email/Password (Easiest for Testing)**
+   - Already enabled in `.env.local` with `ENABLE_CREDENTIALS_AUTH="true"`
+   - Dev mode credentials: `demo@example.com` / `password`
+   - No external setup required
+   - Perfect for testing the auth flow immediately
+
+   **Option B: OAuth Providers** (choose at least one):
 
    **Google OAuth:**
    - Go to [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
