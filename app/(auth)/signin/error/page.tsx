@@ -14,12 +14,13 @@ const errorMessages: Record<string, string> = {
   Default: "An error occurred during sign in.",
 };
 
-export default function SignInErrorPage({
+export default async function SignInErrorPage({
   searchParams,
 }: {
-  searchParams: { error?: string };
+  searchParams: Promise<{ error?: string }>;
 }) {
-  const error = searchParams.error || "Default";
+  const params = await searchParams;
+  const error = params.error || "Default";
   const errorMessage = errorMessages[error] || errorMessages.Default;
 
   return (
