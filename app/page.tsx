@@ -1,10 +1,18 @@
 import { getCurrentUser } from "@/lib/auth/utils";
 import { SignInButton } from "@/components/auth/SignInButton";
 import { SignOutButton } from "@/components/auth/SignOutButton";
+import { logger } from "@/lib/logger";
 import Link from "next/link";
 
 export default async function Home() {
+  // Example: Using the logger in a server component
+  logger.info("Home page rendered");
+  
   const user = await getCurrentUser();
+  
+  if (user) {
+    logger.debug({ userId: user.id }, "User is authenticated");
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-zinc-900">

@@ -9,6 +9,7 @@ A modern, production-ready Next.js boilerplate with TypeScript, Tailwind CSS, an
 - 📘 TypeScript
 - 🗄️ Prisma ORM with SQLite/PostgreSQL support
 - 🔐 NextAuth.js authentication with locked schema design
+- 📝 Pino logging system (structured, high-performance)
 - 🔍 ESLint configured
 - 🌙 Dark mode ready
 - 📦 Modular architecture
@@ -298,6 +299,380 @@ Customize auth components in `components/auth/` to match your design system
 - Verify `sessions` table exists
 - Check browser cookies are enabled
 
+## Logging
+
+This boilerplate includes a production-ready logging system using **next-logger** with **Pino**, providing structured, high-performance logging throughout your Next.js application.
+
+### What is next-logger?
+
+`next-logger` patches Next.js's internal logger to use Pino, giving you:
+- **Unified logging** from Next.js framework, server components, API routes, and your application code
+- **Structured JSON logs** from the entire Next.js stack (build, routing, rendering, etc.)
+- **Zero configuration** - works out of the box with Next.js conventions
+- **High performance** - Pino is one of the fastest Node.js loggers available
+
+### Features
+
+- 🚀 **High Performance**: Asynchronous logging with minimal overhead
+- 📊 **Structured Logs**: JSON format in production for easy parsing
+- 🎨 **Pretty Printing**: Colorized, readable logs in development
+- 🔒 **Security**: Automatic redaction of sensitive fields (passwords, tokens, etc.)
+- 🎯 **Contextual**: Child loggers for request-specific context
+- ⚙️ **Configurable**: Environment-based log levels
+- 🔧 **Next.js Integration**: Patches Next.js's internal logger automatically
+
+### Quick Start
+
+**Basic Usage:**
+```typescript
+import { logger } from '@/lib/logger';
+
+// Simple logging
+logger.info('User logged in');
+logger.error('Failed to process payment');
+logger.debug('Debug information');
+logger.warn('Deprecated API used');
+
+// Structured logging with data
+logger.info({ userId: '123', action: 'login' }, 'User logged in');
+logger.error({ error: err.message, stack: err.stack }, 'Payment failed');
+```
+
+**In Server Components:**
+```typescript
+import { logger } from '@/lib/logger';
+
+export default async function Page() {
+  logger.info('Rendering page');
+  
+  try {
+    const data = await fetchData();
+    logger.debug({ dataCount: data.length }, 'Data fetched');
+    return <div>{/* ... */}</div>;
+  } catch (error) {
+    logger.error({ error }, 'Failed to fetch data');
+    throw error;
+  }
+}
+```
+
+**In API Routes:**
+```typescript
+import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
+
+export async function POST(request: NextRequest) {
+  // Create request-specific logger with context
+  const requestLogger = logger.child({
+    requestId: crypto.randomUUID(),
+    endpoint: '/api/users',
+  });
+
+  try {
+    const body = await request.json();
+    requestLogger.info({ userId: body.userId }, 'Creating user');
+    
+    // Your logic here
+    
+    requestLogger.info('User created successfully');
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    requestLogger.error({ error }, 'Failed to create user');
+    return NextResponse.json({ error: 'Failed' }, { status: 500 });
+  }
+}
+```
+
+**In Server Actions:**
+```typescript
+'use server';
+
+import { logger } from '@/lib/logger';
+
+export async function createUser(formData: FormData) {
+  const actionLogger = logger.child({ action: 'createUser' });
+  
+  try {
+    actionLogger.info('Processing form submission');
+    // Your logic
+    actionLogger.info('User created');
+  } catch (error) {
+    actionLogger.error({ error }, 'Action failed');
+    throw error;
+  }
+}
+```
+
+### Configuration
+
+**Log Levels:**
+
+Set `LOG_LEVEL` in `.env.local` to control verbosity:
+
+```env
+# Options: trace, debug, info, warn, error, fatal
+LOG_LEVEL="debug"  # Development (shows everything)
+LOG_LEVEL="info"   # Production (recommended)
+LOG_LEVEL="error"  # Only errors
+```
+
+**Log Levels Explained:**
+- `trace` (10): Very detailed debugging
+- `debug` (20): Debugging information
+- `info` (30): General information (default in production)
+- `warn` (40): Warning messages
+- `error` (50): Error messages
+- `fatal` (60): Fatal errors that crash the app
+
+**Default Behavior:**
+- Development: Pretty-printed, colorized logs with `debug` level
+- Production: JSON-formatted logs with `info` level
+
+### Child Loggers (Contextual Logging)
+
+Create child loggers to add persistent context to all logs:
+
+```typescript
+import { createLogger } from '@/lib/logger';
+
+// Create logger with context
+const userLogger = createLogger({ 
+  userId: '123', 
+  tenantId: 'abc' 
+});
+
+userLogger.info('User action'); 
+// Output: {"level":"info","userId":"123","tenantId":"abc","msg":"User action"}
+
+userLogger.error({ error: 'Failed' }, 'Operation failed');
+// Context is automatically included in every log
+```
+
+### Security: Sensitive Data Redaction
+
+The logger automatically redacts sensitive fields:
+
+```typescript
+logger.info({ 
+  username: 'john',
+  password: 'secret123',  // Will be redacted
+  token: 'abc123'         // Will be redacted
+});
+
+// Output: {"level":"info","username":"john","password":"[REDACTED]","token":"[REDACTED]"}
+```
+
+**Redacted fields by default:**
+- `password`
+- `token`
+- `apiKey`
+- `secret`
+- `authorization`
+
+**Add custom redaction:**
+
+Edit `lib/logger.ts`:
+```typescript
+redact: {
+  paths: ['password', 'token', 'apiKey', 'secret', 'authorization', 'ssn', 'creditCard'],
+  censor: '[REDACTED]',
+}
+```
+
+### How It Works
+
+The logging system consists of three parts:
+
+1. **`instrumentation.ts`** - Next.js instrumentation hook that loads next-logger
+   - Automatically loaded by Next.js (no config needed in Next.js 16+)
+   - Patches Next.js's internal logger to use Pino
+   - Only runs in Node.js runtime (not Edge)
+
+2. **`next-logger.config.js`** - Pino configuration for Next.js framework logs
+   - Automatically picked up by next-logger
+   - Configures log levels, pretty printing, and redaction
+   - Applies to all Next.js internal logs (build, routing, etc.)
+
+3. **`lib/logger.ts`** - Application logger for your code
+   - Uses the same Pino configuration as next-logger
+   - Import and use in your components, API routes, and server actions
+
+### Production Setup
+
+**For Production Environments:**
+
+1. **Set log level to `info` or `warn`:**
+   ```env
+   LOG_LEVEL="info"
+   ```
+
+2. **JSON logs are automatically enabled** in production (when `NODE_ENV=production`)
+
+3. **Ship logs to external services:**
+
+   The JSON format works with all major log aggregation services:
+   - **Datadog**: Use Datadog agent or HTTP intake
+   - **LogFlare**: Use `pino-logflare` transport
+   - **Axiom**: Use HTTP intake
+   - **CloudWatch**: Use `pino-cloudwatch` transport
+   - **Elasticsearch**: Use `pino-elasticsearch` transport
+   - **Loki**: Use `pino-loki` transport
+
+   Example with external transport:
+   ```bash
+   npm install pino-logflare
+   ```
+
+   Update `next-logger.config.js`:
+   ```javascript
+   const pino = require('pino');
+   
+   const logger = (defaultConfig) =>
+     pino({
+       ...defaultConfig,
+       level: process.env.LOG_LEVEL || 'info',
+       transport: process.env.NODE_ENV === 'production' ? {
+         target: 'pino-logflare',
+         options: {
+           apiKey: process.env.LOGFLARE_API_KEY,
+           sourceToken: process.env.LOGFLARE_SOURCE_TOKEN,
+         }
+       } : { /* dev config */ }
+     });
+   
+   module.exports = { logger };
+   ```
+
+### Examples
+
+**Example 1: Database Operations**
+```typescript
+import { logger } from '@/lib/logger';
+import { prisma } from '@/lib/db';
+
+export async function getUser(id: string) {
+  const dbLogger = logger.child({ operation: 'getUser', userId: id });
+  
+  try {
+    dbLogger.debug('Querying database');
+    const user = await prisma.user.findUnique({ where: { id } });
+    
+    if (!user) {
+      dbLogger.warn('User not found');
+      return null;
+    }
+    
+    dbLogger.info('User retrieved successfully');
+    return user;
+  } catch (error) {
+    dbLogger.error({ error }, 'Database query failed');
+    throw error;
+  }
+}
+```
+
+**Example 2: Authentication Flow**
+```typescript
+import { logger } from '@/lib/logger';
+
+export async function signIn(email: string, password: string) {
+  const authLogger = logger.child({ email, flow: 'signIn' });
+  
+  authLogger.info('Sign-in attempt');
+  
+  const user = await findUser(email);
+  if (!user) {
+    authLogger.warn('User not found');
+    return { error: 'Invalid credentials' };
+  }
+  
+  const valid = await verifyPassword(password, user.passwordHash);
+  if (!valid) {
+    authLogger.warn('Invalid password');
+    return { error: 'Invalid credentials' };
+  }
+  
+  authLogger.info('Sign-in successful');
+  return { success: true };
+}
+```
+
+**Example 3: Error Tracking**
+```typescript
+import { logger } from '@/lib/logger';
+
+try {
+  await riskyOperation();
+} catch (error) {
+  logger.error({
+    error: error instanceof Error ? error.message : String(error),
+    stack: error instanceof Error ? error.stack : undefined,
+    context: { userId: '123', operation: 'riskyOperation' }
+  }, 'Operation failed');
+  
+  // Re-throw or handle
+  throw error;
+}
+```
+
+### Best Practices
+
+1. **Use structured logging**: Pass objects with data, not just strings
+   ```typescript
+   // ✅ Good
+   logger.info({ userId, action: 'purchase', amount }, 'Purchase completed');
+   
+   // ❌ Avoid
+   logger.info(`User ${userId} purchased for ${amount}`);
+   ```
+
+2. **Create child loggers for context**: Add persistent context to related logs
+   ```typescript
+   const requestLogger = logger.child({ requestId, userId });
+   ```
+
+3. **Log at appropriate levels**: Don't log everything as `info`
+   - `debug`: Development/troubleshooting info
+   - `info`: Important business events
+   - `warn`: Recoverable issues
+   - `error`: Errors that need attention
+
+4. **Don't log sensitive data**: The logger redacts common fields, but be careful
+   ```typescript
+   // ✅ Safe
+   logger.info({ userId: user.id }, 'User updated');
+   
+   // ❌ Dangerous
+   logger.info({ user }, 'User updated'); // May contain password hash
+   ```
+
+5. **Include error context**: Always log the full error object
+   ```typescript
+   logger.error({ error, userId, operation }, 'Failed to process');
+   ```
+
+### Performance Notes
+
+- Pino is **5-10x faster** than other Node.js loggers
+- Asynchronous by default - won't block your application
+- JSON serialization is optimized for speed
+- In production, logging overhead is typically < 1ms per log
+
+### Troubleshooting
+
+**Logs not appearing:**
+- Check `LOG_LEVEL` in `.env.local`
+- Verify `NODE_ENV` is set correctly
+- Restart dev server after changing log level
+
+**Too many logs:**
+- Increase `LOG_LEVEL` to `info` or `warn`
+- Remove `debug` logs from production code
+
+**Logs not formatted in development:**
+- Ensure `pino-pretty` is installed: `npm install pino-pretty`
+- Check `NODE_ENV` is not set to `production`
+
 ## Configuration
 
 ### Environment Variables
@@ -450,6 +825,16 @@ const updated = await prisma.user.update({
 - ✅ Auth tables pre-configured
 - ✅ Example UserProfile extension
 - ✅ Seed script template
+
+### Logging
+- ✅ next-logger + Pino (patches Next.js internal logger)
+- ✅ Unified logging across entire Next.js stack
+- ✅ Pretty printing in development
+- ✅ JSON logs in production
+- ✅ Automatic sensitive data redaction
+- ✅ Child loggers for contextual logging
+- ✅ Configurable log levels
+- ✅ Ready for log aggregation services
 
 ### Development Tools
 - ✅ TypeScript with strict mode
