@@ -23,14 +23,24 @@ export const authOptions: NextAuthConfig = {
   },
   
   session: {
-    strategy: "database",
+    // Use JWT for credentials provider, database for OAuth
+    // Credentials provider doesn't work with database sessions
+    strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   
   callbacks: {
-    async session({ session, user }) {
-      if (session.user) {
-        session.user.id = user.id;
+    async jwt({ token, user }) {
+      // Add user ID to token on signin
+      if (user) {
+        token.id = user.id;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      // Add user ID from token to session
+      if (session.user && token.id) {
+        session.user.id = token.id as string;
       }
       return session;
     },

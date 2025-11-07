@@ -51,33 +51,41 @@ export async function authenticateUser(email: string, password: string) {
     };
   }
 
-  // Production mode: Implement your own authentication logic
-  // TODO: Replace this with your actual user lookup and password verification
-  
-  // Example implementation (uncomment and customize):
-  /*
+  // Production mode: Verify user credentials
   const user = await prisma.user.findUnique({
     where: { email },
     include: { profile: true },
   });
 
-  if (!user || !user.passwordHash) {
+  if (!user) {
+    console.log(`[Auth] User not found: ${email}`);
+    return null;
+  }
+
+  if (!user.passwordHash) {
+    console.log(`[Auth] User has no password: ${email}`);
+    return null;
+  }
+
+  // Check if email is verified
+  if (!user.emailVerified) {
+    console.log(`[Auth] Email not verified: ${email}`);
+    // Return null - NextAuth will show generic error
+    // Client should check verification status separately
     return null;
   }
 
   const isValid = await verifyPassword(password, user.passwordHash);
   if (!isValid) {
+    console.log(`[Auth] Invalid password for: ${email}`);
     return null;
   }
 
+  console.log(`[Auth] Successful authentication: ${email}`);
   return {
     id: user.id,
     email: user.email,
     name: user.profile?.name || null,
     image: user.profile?.image || null,
   };
-  */
-
-  // For now, return null in production (no credentials auth)
-  return null;
 }

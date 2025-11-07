@@ -10,9 +10,16 @@ import { SignInButton } from "@/components/auth/SignInButton";
 import { CredentialsForm } from "@/components/auth/CredentialsForm";
 import { config } from "@lib/config";
 
-export default function SignInPage() {
+export default async function SignInPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ verified?: string; error?: string }>;
+}) {
+  const params = await searchParams;
   const providers = config.auth.providers;
   const hasOAuthProviders = providers.google || providers.facebook || providers.apple || providers.twitter || providers.github || providers.email;
+  const verified = params.verified === "true";
+  const error = params.error;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -21,6 +28,23 @@ export default function SignInPage() {
           <h1 className="text-3xl font-bold">{config.app.name}</h1>
           <p className="mt-2 text-gray-600">Sign in to your account</p>
         </div>
+
+        {/* Success/Error Messages */}
+        {verified && (
+          <div className="text-green-600 text-sm bg-green-50 p-3 rounded-lg">
+            ✓ Email verified successfully! You can now sign in.
+          </div>
+        )}
+        {error === "invalid-verification" && (
+          <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg">
+            The verification link is invalid or has expired.
+          </div>
+        )}
+        {error === "verification-failed" && (
+          <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg">
+            An error occurred during verification. Please try again.
+          </div>
+        )}
 
         {/* Credentials Form */}
         {providers.credentials && (
@@ -121,6 +145,15 @@ export default function SignInPage() {
             </SignInButton>
           )}
         </div>
+
+        {providers.credentials && (
+          <p className="text-center text-sm text-gray-600">
+            Don't have an account?{" "}
+            <a href="/signup" className="text-blue-600 hover:text-blue-700 font-medium">
+              Sign up
+            </a>
+          </p>
+        )}
 
         <p className="text-center text-sm text-gray-600">
           By signing in, you agree to our Terms of Service and Privacy Policy.

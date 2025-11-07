@@ -15,25 +15,13 @@ const logLevel = process.env.LOG_LEVEL || (isDevelopment ? "debug" : "info");
 /**
  * Custom Pino logger configuration
  * This function receives the default config and returns a Pino instance
+ * 
+ * Uses JSON format for structured logging that works with all log aggregation tools.
  */
 const logger = (defaultConfig) =>
   pino({
     ...defaultConfig,
     level: logLevel,
-    // Pretty print in development, JSON in production
-    ...(isDevelopment
-      ? {
-          transport: {
-            target: "pino-pretty",
-            options: {
-              colorize: true,
-              translateTime: "HH:MM:ss",
-              ignore: "pid,hostname",
-              singleLine: false,
-            },
-          },
-        }
-      : {}),
     // Redact sensitive fields
     redact: {
       paths: ["password", "token", "apiKey", "secret", "authorization"],

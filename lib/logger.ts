@@ -13,7 +13,7 @@ import pino from "pino";
  * - Structured JSON logs from Next.js framework and your application
  * - High-performance async logging with zero overhead
  * - Automatic integration with Next.js build and runtime logs
- * - Pretty printing in development, JSON in production
+ * - JSON format in all environments (compatible with Next.js Turbopack)
  * 
  * Usage:
  * ```typescript
@@ -28,27 +28,21 @@ import pino from "pino";
  * - Edit next-logger.config.js for Pino configuration
  * - Add custom serializers for sensitive data
  * - Configure transports for external log services
+ * 
+ * Note: We use JSON format for all logging. This provides structured logs
+ * that work seamlessly with log aggregation tools and avoids any compatibility
+ * issues with Next.js development mode.
  */
 
 const isDevelopment = process.env.NODE_ENV === "development";
 const logLevel = process.env.LOG_LEVEL || (isDevelopment ? "debug" : "info");
 
+// Create logger with JSON format for all environments
+// JSON logs are structured, fast, and work with all log aggregation tools
 export const logger = pino({
   level: logLevel,
   name: "app",
-  // Pretty print in development, JSON in production
-  transport: isDevelopment
-    ? {
-        target: "pino-pretty",
-        options: {
-          colorize: true,
-          translateTime: "HH:MM:ss",
-          ignore: "pid,hostname",
-          singleLine: false,
-        },
-      }
-    : undefined,
-  // Redact sensitive fields (same as next-logger config)
+  // Redact sensitive fields
   redact: {
     paths: ["password", "token", "apiKey", "secret", "authorization"],
     censor: "[REDACTED]",

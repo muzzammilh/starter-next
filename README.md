@@ -85,6 +85,11 @@ One user can sign in through multiple providers (Google, Facebook, etc.). The `A
    - Dev mode credentials: `demo@example.com` / `password`
    - No external setup required
    - Perfect for testing the auth flow immediately
+   - **Sign up page**: Visit `/signup` to create new accounts
+   - **Sign in page**: Visit `/signin` to log in with existing accounts
+   - **Email verification**: Required for new signups (verification email sent automatically)
+   - Password requirements: 8+ characters with uppercase, lowercase, and number
+   - **Note**: Configure email provider (see Email System section) for verification emails to work
 
    **Option B: OAuth Providers** (choose at least one):
 
@@ -139,8 +144,8 @@ One user can sign in through multiple providers (Google, Facebook, etc.). The `A
 
 3. **Test Authentication**:
    - Start dev server: `npm run dev`
-   - Visit: `http://localhost:3000/signin`
-   - Sign in with configured provider
+   - **For Email/Password**: Visit `http://localhost:3000/signup` to create an account, then sign in at `/signin`
+   - **For OAuth**: Visit `http://localhost:3000/signin` and click your configured provider
    - Visit: `http://localhost:3000/dashboard` (protected route example)
 
 ### Database Schema
@@ -657,7 +662,8 @@ try {
 - Pino is **5-10x faster** than other Node.js loggers
 - Asynchronous by default - won't block your application
 - JSON serialization is optimized for speed
-- In production, logging overhead is typically < 1ms per log
+- Logging overhead is typically < 1ms per log
+- JSON format is production-ready and works with all log aggregation services
 
 ### Troubleshooting
 
@@ -670,9 +676,10 @@ try {
 - Increase `LOG_LEVEL` to `info` or `warn`
 - Remove `debug` logs from production code
 
-**Logs not formatted in development:**
-- Ensure `pino-pretty` is installed: `npm install pino-pretty`
-- Check `NODE_ENV` is not set to `production`
+**Logs are in JSON format:**
+- This is expected - all logs use JSON format for structured logging
+- JSON logs work with all log aggregation tools (Datadog, CloudWatch, etc.)
+- They're still readable and contain all the information you need
 
 ## Email System
 
