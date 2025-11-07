@@ -32,15 +32,3 @@ export async function verifyPassword(
 ): Promise<boolean> {
   return bcrypt.compare(password, hashedPassword);
 }
-
-/**
- * Development-only: Simple password check for testing
- * In dev mode, accepts any password for demo@example.com
- */
-export function verifyPasswordDev(email: string, password: string): boolean {
-  // Dev mode: Accept specific test credentials
-  if (process.env.NODE_ENV === "development") {
-    return email === "demo@example.com" && password === "password";
-  }
-  return false;
-}

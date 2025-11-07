@@ -84,8 +84,7 @@ const allProviders = [
 
   // Custom Credentials (Email/Password)
   // Requires: ENABLE_CREDENTIALS_AUTH=true
-  // Dev mode: Use demo@example.com / password
-  // Production: Implement your own logic in lib/auth/credentials.ts
+  // Implement your own logic in lib/auth/credentials.ts
   config.auth.providers.credentials &&
     CredentialsProvider({
       id: "credentials",

@@ -4,7 +4,6 @@
  * Credentials Sign-In Form
  * 
  * Email/password authentication form.
- * Dev mode: Use demo@example.com / password
  */
 
 import { signIn } from "next-auth/react";
@@ -56,7 +55,7 @@ export function CredentialsForm() {
           onChange={(e) => setEmail(e.target.value)}
           required
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="demo@example.com"
+          placeholder="your@email.com"
         />
       </div>
 
@@ -79,7 +78,7 @@ export function CredentialsForm() {
           onChange={(e) => setPassword(e.target.value)}
           required
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="password"
+          placeholder="••••••••"
         />
       </div>
 
@@ -96,12 +95,6 @@ export function CredentialsForm() {
       >
         {loading ? "Signing in..." : "Sign In"}
       </button>
-
-      {process.env.NODE_ENV === "development" && (
-        <div className="text-xs text-gray-500 text-center mt-2 p-2 bg-yellow-50 rounded">
-          Dev mode: Use <strong>demo@example.com</strong> / <strong>password</strong>
-        </div>
-      )}
     </form>
   );
 }
