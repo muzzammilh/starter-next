@@ -5,8 +5,8 @@
  * These utilities handle the User + UserProfile pattern.
  */
 
-import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/db/prisma";
+import { auth } from "@lib/auth";
+import { prisma } from "@lib/db/prisma";
 
 /**
  * Get the current session on the server side

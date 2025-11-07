@@ -10,7 +10,7 @@
 import type { NextAuthConfig } from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import type { Adapter } from "next-auth/adapters";
-import { prisma } from "@/lib/db/prisma";
+import { prisma } from "@lib/db/prisma";
 import { authProviders } from "./options";
 
 export const authOptions: NextAuthConfig = {

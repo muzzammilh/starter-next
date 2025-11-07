@@ -5,7 +5,7 @@
  * TODO: Replace with your actual dashboard content.
  */
 
-import { getCurrentUser } from "@/lib/auth/utils";
+import { getCurrentUser } from "@lib/auth/utils";
 import { redirect } from "next/navigation";
 import { SignOutButton } from "@/components/auth/SignOutButton";
 

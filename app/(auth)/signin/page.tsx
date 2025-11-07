@@ -8,7 +8,7 @@
 
 import { SignInButton } from "@/components/auth/SignInButton";
 import { CredentialsForm } from "@/components/auth/CredentialsForm";
-import { config } from "@/lib/config";
+import { config } from "@lib/config";
 
 export default function SignInPage() {
   const providers = config.auth.providers;

@@ -17,7 +17,7 @@ import pino from "pino";
  * 
  * Usage:
  * ```typescript
- * import { logger } from '@/lib/logger';
+ * import { logger } from '@lib/logger';
  * 
  * logger.info('User logged in', { userId: '123' });
  * logger.error('Failed to process', { error: err.message });

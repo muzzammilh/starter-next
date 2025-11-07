@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { logger } from "@/lib/logger";
+import { logger } from "@lib/logger";
 
 /**
  * Example middleware for logging HTTP requests
@@ -9,7 +9,7 @@ import { logger } from "@/lib/logger";
  * 
  * Usage in middleware.ts:
  * ```typescript
- * import { logRequest } from '@/lib/logger/middleware';
+ * import { logRequest } from '@lib/logger/middleware';
  * 
  * export function middleware(request: NextRequest) {
  *   logRequest(request);

@@ -11,6 +11,6 @@
  * Do not modify unless you need custom NextAuth behavior.
  */
 
-import { handlers } from "@/lib/auth";
+import { handlers } from "@lib/auth";
 
 export const { GET, POST } = handlers;

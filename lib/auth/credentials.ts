@@ -5,7 +5,7 @@
  * TODO: Customize this for your production use case.
  */
 
-import { prisma } from "@/lib/db";
+import { prisma } from "@lib/db";
 import { verifyPassword, verifyPasswordDev } from "./password";
 
 /**

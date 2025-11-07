@@ -1,7 +1,7 @@
-import { getCurrentUser } from "@/lib/auth/utils";
+import { getCurrentUser } from "@lib/auth/utils";
 import { SignInButton } from "@/components/auth/SignInButton";
 import { SignOutButton } from "@/components/auth/SignOutButton";
-import { logger } from "@/lib/logger";
+import { logger } from "@lib/logger";
 import Link from "next/link";
 
 export default async function Home() {
