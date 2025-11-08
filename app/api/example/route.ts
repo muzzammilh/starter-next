@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
-import { logger } from "@lib/logger";
+import { NextRequest } from "next/server";
+import { logger } from "@/lib/logger";
+import { apiSuccess, handleApiError } from "@/lib/api";
 
 /**
  * Example API route demonstrating logger usage
@@ -34,7 +35,7 @@ export async function GET(request: NextRequest) {
 
     requestLogger.info({ responseData: data }, "Request completed successfully");
 
-    return NextResponse.json(data);
+    return apiSuccess(data, 'Request completed successfully');
   } catch (error) {
     // Log errors with full context
     requestLogger.error(
@@ -45,10 +46,7 @@ export async function GET(request: NextRequest) {
       "Request failed"
     );
 
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }
 
@@ -67,7 +65,7 @@ export async function POST(request: NextRequest) {
     
     requestLogger.info("POST request completed");
 
-    return NextResponse.json({ success: true });
+    return apiSuccess({ processed: true }, 'Request processed successfully');
   } catch (error) {
     requestLogger.error(
       {
@@ -76,9 +74,6 @@ export async function POST(request: NextRequest) {
       "POST request failed"
     );
 
-    return NextResponse.json(
-      { error: "Bad request" },
-      { status: 400 }
-    );
+    return handleApiError(error);
   }
 }

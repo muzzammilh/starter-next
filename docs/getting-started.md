@@ -97,6 +97,16 @@ Visit the [Logging Guide](./logging.md) to:
 - Configure log levels
 - Set up file logging
 
+### Protect Your APIs
+
+Visit the [API Middleware Guide](./api-middleware.md) to:
+- Add rate limiting to prevent abuse (⚠️ requires external store for serverless)
+- Configure CORS for cross-origin requests
+- Validate requests with Zod schemas
+- Handle errors consistently
+
+**Note**: If deploying to Vercel or other serverless platforms, you'll need to set up an external store (Vercel KV, Upstash) for rate limiting to work properly.
+
 ## Project Structure
 
 ```

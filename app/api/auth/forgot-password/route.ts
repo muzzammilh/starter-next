@@ -5,11 +5,12 @@
  * Sends a password reset email with a secure token.
  */
 
-import { NextRequest, NextResponse } from "next/server";
-import { createPasswordResetToken } from "@lib/auth/password-reset";
-import { sendPasswordResetEmail } from "@lib/email/utils";
-import { prisma } from "@lib/db";
-import { logger } from "@lib/logger";
+import { NextRequest } from "next/server";
+import { createPasswordResetToken } from "@/lib/auth/password-reset";
+import { sendPasswordResetEmail } from "@/lib/email/utils";
+import { prisma } from "@/lib/db";
+import { logger } from "@/lib/logger";
+import { apiSuccess, apiError, handleApiError } from "@/lib/api";
 
 export async function POST(request: NextRequest) {
   const requestLogger = logger.child({
@@ -22,10 +23,7 @@ export async function POST(request: NextRequest) {
 
     if (!email) {
       requestLogger.warn("Email is required");
-      return NextResponse.json(
-        { error: "Email is required" },
-        { status: 400 }
-      );
+      return apiError("Email is required", 400, "MISSING_EMAIL");
     }
 
     requestLogger.info({ email }, "Password reset requested");
@@ -40,19 +38,19 @@ export async function POST(request: NextRequest) {
     // Don't reveal whether the email exists or not
     if (!user) {
       requestLogger.info({ email }, "User not found (returning success for security)");
-      return NextResponse.json({
-        success: true,
-        message: "If an account exists with this email, you will receive a password reset link.",
-      });
+      return apiSuccess(
+        {},
+        "If an account exists with this email, you will receive a password reset link."
+      );
     }
 
     // Check if user has a password (credentials auth enabled)
     if (!user.passwordHash) {
       requestLogger.info({ email }, "User has no password (OAuth user)");
-      return NextResponse.json({
-        success: true,
-        message: "If an account exists with this email, you will receive a password reset link.",
-      });
+      return apiSuccess(
+        {},
+        "If an account exists with this email, you will receive a password reset link."
+      );
     }
 
     // Generate reset token
@@ -61,10 +59,7 @@ export async function POST(request: NextRequest) {
 
     if (!token) {
       requestLogger.error({ email }, "Failed to generate reset token");
-      return NextResponse.json(
-        { error: "Failed to generate reset token" },
-        { status: 500 }
-      );
+      return apiError("Failed to generate reset token", 500, "TOKEN_GENERATION_FAILED");
     }
 
     // Build reset URL
@@ -84,17 +79,14 @@ export async function POST(request: NextRequest) {
         { email, error: emailResult.error },
         "Failed to send password reset email"
       );
-      return NextResponse.json(
-        { error: "Failed to send reset email" },
-        { status: 500 }
-      );
+      return apiError("Failed to send reset email", 500, "EMAIL_SEND_FAILED");
     }
 
     requestLogger.info({ email }, "Password reset email sent successfully");
-    return NextResponse.json({
-      success: true,
-      message: "If an account exists with this email, you will receive a password reset link.",
-    });
+    return apiSuccess(
+      {},
+      "If an account exists with this email, you will receive a password reset link."
+    );
   } catch (error) {
     requestLogger.error(
       {
@@ -103,9 +95,6 @@ export async function POST(request: NextRequest) {
       },
       "Forgot password error"
     );
-    return NextResponse.json(
-      { error: "An error occurred" },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }

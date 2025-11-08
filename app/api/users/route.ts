@@ -7,8 +7,10 @@
  * POST /api/users - Create a new user
  */
 
-import { NextResponse } from 'next/server';
-import { prisma } from '@lib/db';
+import { NextRequest } from 'next/server';
+import { prisma } from '@/lib/db';
+import { logger } from '@/lib/logger';
+import { apiSuccess, apiCreated, apiError, handleApiError } from '@/lib/api';
 
 export async function GET() {
   try {
@@ -18,13 +20,10 @@ export async function GET() {
       },
     });
     
-    return NextResponse.json(users);
+    return apiSuccess(users, 'Users retrieved successfully');
   } catch (error) {
-    console.error('Error fetching users:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch users' },
-      { status: 500 }
-    );
+    logger.error({ error }, 'Error fetching users');
+    return handleApiError(error);
   }
 }
 
@@ -34,10 +33,7 @@ export async function POST(request: Request) {
     const { email, name } = body;
 
     if (!email) {
-      return NextResponse.json(
-        { error: 'Email is required' },
-        { status: 400 }
-      );
+      return apiError('Email is required', 400, 'MISSING_EMAIL');
     }
 
     // Create user with optional profile
@@ -55,12 +51,9 @@ export async function POST(request: Request) {
       },
     });
 
-    return NextResponse.json(user, { status: 201 });
+    return apiCreated(user, 'User created successfully');
   } catch (error) {
-    console.error('Error creating user:', error);
-    return NextResponse.json(
-      { error: 'Failed to create user' },
-      { status: 500 }
-    );
+    logger.error({ error }, 'Error creating user');
+    return handleApiError(error);
   }
 }

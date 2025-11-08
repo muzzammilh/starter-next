@@ -5,14 +5,15 @@
  * Updates the user's password and marks the token as used.
  */
 
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import {
   validatePasswordResetToken,
   markTokenAsUsed,
-} from "@lib/auth/password-reset";
-import { hashPassword } from "@lib/auth/password";
-import { prisma } from "@lib/db";
-import { logger } from "@lib/logger";
+} from "@/lib/auth/password-reset";
+import { hashPassword } from "@/lib/auth/password";
+import { prisma } from "@/lib/db";
+import { logger } from "@/lib/logger";
+import { apiSuccess, apiError, handleApiError } from "@/lib/api";
 
 export async function POST(request: NextRequest) {
   const requestLogger = logger.child({
@@ -25,19 +26,13 @@ export async function POST(request: NextRequest) {
 
     if (!token || !password) {
       requestLogger.warn("Token and password are required");
-      return NextResponse.json(
-        { error: "Token and password are required" },
-        { status: 400 }
-      );
+      return apiError("Token and password are required", 400, "MISSING_FIELDS");
     }
 
     // Validate password strength
     if (password.length < 8) {
       requestLogger.warn("Password too short");
-      return NextResponse.json(
-        { error: "Password must be at least 8 characters" },
-        { status: 400 }
-      );
+      return apiError("Password must be at least 8 characters", 400, "PASSWORD_TOO_SHORT");
     }
 
     requestLogger.info("Validating reset token");
@@ -47,10 +42,7 @@ export async function POST(request: NextRequest) {
 
     if (!userId) {
       requestLogger.warn("Invalid or expired token");
-      return NextResponse.json(
-        { error: "Invalid or expired token" },
-        { status: 400 }
-      );
+      return apiError("Invalid or expired token", 400, "INVALID_TOKEN");
     }
 
     requestLogger.debug({ userId }, "Token validated, updating password");
@@ -69,10 +61,7 @@ export async function POST(request: NextRequest) {
 
     requestLogger.info({ userId }, "Password reset successfully");
 
-    return NextResponse.json({
-      success: true,
-      message: "Password reset successfully",
-    });
+    return apiSuccess({}, "Password reset successfully");
   } catch (error) {
     requestLogger.error(
       {
@@ -81,9 +70,6 @@ export async function POST(request: NextRequest) {
       },
       "Reset password error"
     );
-    return NextResponse.json(
-      { error: "An error occurred" },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }

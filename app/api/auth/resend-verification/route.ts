@@ -4,12 +4,13 @@
  * Allows users to request a new verification email.
  */
 
-import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@lib/db";
-import { generateVerificationToken } from "@lib/auth/verification";
-import { sendVerificationEmail } from "@lib/email/utils";
-import { logger } from "@lib/logger";
+import { NextRequest } from "next/server";
+import { prisma } from "@/lib/db";
+import { generateVerificationToken } from "@/lib/auth/verification";
+import { sendVerificationEmail } from "@/lib/email/utils";
+import { logger } from "@/lib/logger";
 import { z } from "zod";
+import { apiSuccess, apiError, handleApiError } from "@/lib/api";
 
 const resendSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -29,7 +30,7 @@ export async function POST(request: NextRequest) {
     if (!validation.success) {
       const errorMessage = validation.error.issues[0].message;
       requestLogger.warn({ error: errorMessage }, "Validation failed");
-      return NextResponse.json({ error: errorMessage }, { status: 400 });
+      return apiError(errorMessage, 400, "VALIDATION_ERROR");
     }
 
     const { email } = validation.data;
@@ -44,18 +45,16 @@ export async function POST(request: NextRequest) {
     if (!user) {
       // Don't reveal if user exists or not for security
       requestLogger.warn({ email }, "User not found");
-      return NextResponse.json({
-        success: true,
-        message: "If an account exists, a verification email has been sent",
-      });
+      return apiSuccess(
+        {},
+        "If an account exists, a verification email has been sent"
+      );
     }
 
     // Check if already verified
     if (user.emailVerified) {
       requestLogger.info({ email }, "Email already verified");
-      return NextResponse.json({
-        error: "Email is already verified",
-      }, { status: 400 });
+      return apiError("Email is already verified", 400, "ALREADY_VERIFIED");
     }
 
     // Generate new verification token
@@ -74,18 +73,12 @@ export async function POST(request: NextRequest) {
         { error: emailResult.error },
         "Failed to send verification email"
       );
-      return NextResponse.json(
-        { error: "Failed to send verification email" },
-        { status: 500 }
-      );
+      return apiError("Failed to send verification email", 500, "EMAIL_SEND_FAILED");
     }
 
     requestLogger.info({ email }, "Verification email sent");
 
-    return NextResponse.json({
-      success: true,
-      message: "Verification email sent",
-    });
+    return apiSuccess({}, "Verification email sent");
   } catch (error) {
     requestLogger.error(
       {
@@ -94,9 +87,6 @@ export async function POST(request: NextRequest) {
       },
       "Resend verification error"
     );
-    return NextResponse.json(
-      { error: "An error occurred" },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }

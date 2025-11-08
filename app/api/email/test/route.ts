@@ -11,9 +11,10 @@
  * Body: { "to": "test@example.com", "template": "welcome" }
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { sendEmail } from '@/lib/email';
 import { createLogger } from '@/lib/logger';
+import { apiSuccess, apiError, handleApiError } from '@/lib/api';
 
 export async function POST(request: NextRequest) {
   const requestLogger = createLogger({
@@ -27,12 +28,11 @@ export async function POST(request: NextRequest) {
 
   if (isProduction && !isEnabled) {
     requestLogger.warn('Email test endpoint blocked in production');
-    return NextResponse.json(
-      { 
-        error: 'This endpoint is disabled in production',
-        message: 'Set ENABLE_EMAIL_TEST_ENDPOINT="true" to enable'
-      },
-      { status: 403 }
+    return apiError(
+      'This endpoint is disabled in production',
+      403,
+      'ENDPOINT_DISABLED',
+      { hint: 'Set ENABLE_EMAIL_TEST_ENDPOINT=true to enable' }
     );
   }
 
@@ -41,10 +41,7 @@ export async function POST(request: NextRequest) {
     const { to, template = 'welcome' } = body;
 
     if (!to) {
-      return NextResponse.json(
-        { error: 'Email address is required' },
-        { status: 400 }
-      );
+      return apiError('Email address is required', 400, 'MISSING_EMAIL');
     }
 
     requestLogger.info({ to, template }, 'Testing email');
@@ -76,23 +73,16 @@ export async function POST(request: NextRequest) {
 
     if (result.success) {
       requestLogger.info({ messageId: result.messageId }, 'Test email sent');
-      return NextResponse.json({
-        success: true,
-        message: 'Email sent successfully',
-        messageId: result.messageId,
-      });
+      return apiSuccess(
+        { messageId: result.messageId },
+        'Email sent successfully'
+      );
     } else {
       requestLogger.error({ error: result.error }, 'Failed to send test email');
-      return NextResponse.json(
-        { error: result.error },
-        { status: 500 }
-      );
+      return apiError(result.error || 'Failed to send email', 500, 'EMAIL_SEND_FAILED');
     }
   } catch (error) {
     requestLogger.error({ error }, 'Error in test email endpoint');
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }

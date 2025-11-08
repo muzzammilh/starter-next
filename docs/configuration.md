@@ -227,6 +227,61 @@ export function customEmail(data: any) {
 }
 ```
 
+## API Middleware Configuration
+
+### Rate Limiting
+
+Configure default rate limits:
+
+```env
+# .env.local
+RATE_LIMIT_MAX_REQUESTS="100"
+RATE_LIMIT_WINDOW_MS="60000"  # 1 minute
+```
+
+Use presets in your code:
+
+```typescript
+import { rateLimitPresets } from '@/lib/api/config';
+
+// Use preset
+rateLimit: rateLimitPresets.public  // 10 requests/min
+rateLimit: rateLimitPresets.authenticated  // 100 requests/min
+rateLimit: rateLimitPresets.write  // 20 requests/min
+rateLimit: rateLimitPresets.admin  // 1000 requests/min
+```
+
+### CORS
+
+Configure allowed origins:
+
+```env
+# .env.local
+CORS_ALLOWED_ORIGINS="https://example.com,https://app.example.com"
+```
+
+Or use in code:
+
+```typescript
+import { defaultCorsConfig } from '@/lib/api/config';
+
+cors: {
+  ...defaultCorsConfig,
+  allowedOrigins: ['https://example.com'],
+}
+```
+
+### Redis (Production)
+
+For multi-instance deployments, use Redis for rate limiting:
+
+```env
+# .env.local
+REDIS_URL="redis://localhost:6379"
+```
+
+Then implement Redis-based rate limiting (see API Middleware docs).
+
 ## Logging Configuration
 
 ### Log Levels

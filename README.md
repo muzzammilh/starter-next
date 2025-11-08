@@ -11,6 +11,7 @@ A modern, production-ready Next.js boilerplate with TypeScript, Tailwind CSS, an
 - 🔐 NextAuth.js authentication with locked schema design
 - 📧 Email system with multiple provider support (SMTP, Resend, SendGrid, Mailjet)
 - 📝 Pino logging system (structured, high-performance)
+- 🛡️ API middleware (rate limiting, CORS, validation, error handling)
 - 🔍 ESLint configured
 - 🌙 Dark mode ready
 - 📦 Modular architecture
@@ -24,6 +25,7 @@ A modern, production-ready Next.js boilerplate with TypeScript, Tailwind CSS, an
 - **[Database](./docs/database.md)** - Prisma ORM configuration and usage
 - **[Email System](./docs/email.md)** - Multi-provider email configuration
 - **[Logging](./docs/logging.md)** - Pino logging with file rotation
+- **[API Middleware](./docs/api-middleware.md)** - Rate limiting, CORS, validation, error handling
 - **[Configuration](./docs/configuration.md)** - Environment variables and app configuration
 
 ## Quick Start
@@ -99,6 +101,20 @@ Open [http://localhost:3000](http://localhost:3000) to see your app.
 - ✅ Ready for log aggregation services
 
 [→ Read the Logging Guide](./docs/logging.md)
+
+### API Middleware
+- ✅ Rate limiting (prevent API abuse) ⚠️ *Needs external store for serverless*
+- ✅ CORS (secure cross-origin requests)
+- ✅ Request validation (type-safe with Zod)
+- ✅ Authentication middleware (reusable auth checks)
+- ✅ Error handling (consistent error responses)
+- ✅ Request logging (automatic timing)
+- ✅ Easy-to-use wrapper (`withApiMiddleware`)
+- ✅ Serverless-compatible (with external store for rate limiting)
+
+**⚠️ Important**: Rate limiting uses in-memory storage by default. For serverless deployments (Vercel, AWS Lambda, Netlify), you must use an external store like Vercel KV or Upstash Redis. See the [API Middleware Guide](./docs/api-middleware.md) for details.
+
+[→ Read the API Middleware Guide](./docs/api-middleware.md)
 
 ### Development Tools
 - ✅ TypeScript with strict mode
@@ -203,6 +219,22 @@ await sendWelcomeEmail('user@example.com', 'John Doe');
 import { logger } from '@/lib/logger';
 
 logger.info({ userId: '123' }, 'User logged in');
+```
+
+### Protect an API Route
+
+```typescript
+import { withApiMiddleware } from '@/lib/api/utils';
+
+export const POST = withApiMiddleware(
+  async (request) => {
+    return NextResponse.json({ success: true });
+  },
+  {
+    rateLimit: { maxRequests: 100, windowMs: 60000 },
+    cors: { allowedOrigins: ['https://example.com'] },
+  }
+);
 ```
 
 ## Production Deployment

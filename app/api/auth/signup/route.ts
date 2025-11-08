@@ -5,13 +5,14 @@
  * Creates new user accounts with hashed passwords.
  */
 
-import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@lib/db";
-import { hashPassword } from "@lib/auth/password";
-import { generateVerificationToken } from "@lib/auth/verification";
-import { sendVerificationEmail } from "@lib/email/utils";
-import { logger } from "@lib/logger";
+import { NextRequest } from "next/server";
+import { prisma } from "@/lib/db";
+import { hashPassword } from "@/lib/auth/password";
+import { generateVerificationToken } from "@/lib/auth/verification";
+import { sendVerificationEmail } from "@/lib/email/utils";
+import { logger } from "@/lib/logger";
 import { z } from "zod";
+import { apiSuccess, apiError, handleApiError } from "@/lib/api";
 
 // Validation schema
 const signUpSchema = z.object({
@@ -42,10 +43,7 @@ export async function POST(request: NextRequest) {
         { error: errorMessage },
         "Validation failed"
       );
-      return NextResponse.json(
-        { error: errorMessage },
-        { status: 400 }
-      );
+      return apiError(errorMessage, 400, 'VALIDATION_ERROR');
     }
 
     const { name, email, password } = validation.data;
@@ -58,9 +56,10 @@ export async function POST(request: NextRequest) {
 
     if (existingUser) {
       requestLogger.warn({ email }, "User already exists");
-      return NextResponse.json(
-        { error: "An account with this email already exists" },
-        { status: 409 }
+      return apiError(
+        "An account with this email already exists",
+        409,
+        'EMAIL_EXISTS'
       );
     }
 
@@ -109,17 +108,13 @@ export async function POST(request: NextRequest) {
       requestLogger.info({ email }, "Verification email sent");
     }
 
-    return NextResponse.json(
+    return apiSuccess(
       {
-        success: true,
-        message: "Account created! Please check your email to verify your account.",
-        user: {
-          id: user.id,
-          email: user.email,
-          name: user.profile?.name,
-        },
+        id: user.id,
+        email: user.email,
       },
-      { status: 201 }
+      "Account created! Please check your email to verify your account.",
+      201
     );
   } catch (error) {
     requestLogger.error(
@@ -129,9 +124,6 @@ export async function POST(request: NextRequest) {
       },
       "Sign up error"
     );
-    return NextResponse.json(
-      { error: "An error occurred during sign up" },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }
