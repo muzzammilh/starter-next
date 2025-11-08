@@ -1,4 +1,5 @@
 import pino from "pino";
+import { createStreams } from "./logger/transports";
 
 /**
  * Application logger using next-logger + Pino
@@ -14,6 +15,7 @@ import pino from "pino";
  * - High-performance async logging with zero overhead
  * - Automatic integration with Next.js build and runtime logs
  * - JSON format in all environments (compatible with Next.js Turbopack)
+ * - File logging with rotation policies (Django-style)
  * 
  * Usage:
  * ```typescript
@@ -25,6 +27,8 @@ import pino from "pino";
  * 
  * Customization:
  * - Set LOG_LEVEL in .env.local (debug, info, warn, error)
+ * - Set LOG_TO_FILE=true to enable file logging
+ * - Configure LOG_DIR, LOG_FILE_MAX_SIZE, LOG_FILE_MAX_FILES for rotation
  * - Edit next-logger.config.js for Pino configuration
  * - Add custom serializers for sensitive data
  * - Configure transports for external log services
@@ -39,15 +43,18 @@ const logLevel = process.env.LOG_LEVEL || (isDevelopment ? "debug" : "info");
 
 // Create logger with JSON format for all environments
 // JSON logs are structured, fast, and work with all log aggregation tools
-export const logger = pino({
-  level: logLevel,
-  name: "app",
-  // Redact sensitive fields
-  redact: {
-    paths: ["password", "token", "apiKey", "secret", "authorization"],
-    censor: "[REDACTED]",
+export const logger = pino(
+  {
+    level: logLevel,
+    name: "app",
+    // Redact sensitive fields
+    redact: {
+      paths: ["password", "token", "apiKey", "secret", "authorization"],
+      censor: "[REDACTED]",
+    },
   },
-});
+  createStreams()
+);
 
 /**
  * Create a child logger with additional context

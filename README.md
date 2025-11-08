@@ -665,6 +665,117 @@ try {
 - Logging overhead is typically < 1ms per log
 - JSON format is production-ready and works with all log aggregation services
 
+### File Logging with Rotation (Django-style)
+
+In addition to stdout logging, you can enable file-based logging with automatic rotation policies, similar to Django's logging handlers.
+
+**Enable File Logging:**
+
+Add to your `.env.local`:
+
+```env
+# Enable file logging
+LOG_TO_FILE=true
+
+# Optional: Configure rotation policies
+LOG_DIR=./logs                # Log directory (default: ./logs)
+LOG_FILE_MAX_SIZE=10M         # Max file size before rotation (default: 10M)
+LOG_FILE_MAX_FILES=10         # Number of rotated files to keep (default: 10)
+LOG_FILE_MAX_AGE=7d           # Max age of log files (optional, e.g., 7d, 24h)
+```
+
+**What You Get:**
+
+When file logging is enabled, logs are written to:
+- `logs/app.json` - All logs in JSON format (structured logging)
+- `logs/error.json` - Error logs only (for easier debugging)
+
+All logs use JSON format (no worker threads, dev server compatible). To view in human-readable format, use `jq`:
+```bash
+cat logs/app.json | jq -r '.time + " " + .level + " " + .msg'
+```
+
+**Important Notes:**
+- **Serverless Compatible**: File logging is automatically disabled in serverless environments (Vercel, AWS Lambda, Netlify, Google Cloud Functions, Cloudflare Workers). Logs go to stdout and are captured by the platform.
+- **Dev Server Compatible**: Uses JSON-only format (no worker threads) to avoid conflicts with Next.js dev server hot reload.
+- **View Human-Readable**: Use `jq` to format JSON logs: `cat logs/app.json | jq`
+
+**Rotation Policies:**
+
+1. **Size-based rotation** (default):
+   - Rotates when file reaches `LOG_FILE_MAX_SIZE`
+   - Keeps `LOG_FILE_MAX_FILES` rotated files
+   - Example: `app.json`, `app.json.1`, `app.json.2`, etc.
+
+2. **Time-based rotation**:
+   - Set `LOG_FILE_MAX_AGE` (e.g., `7d`, `24h`, `60m`)
+   - Rotates based on time intervals
+   - Useful for high-traffic applications
+
+3. **Hybrid approach**:
+   - Combine both size and time-based rotation
+   - Rotates when either condition is met
+
+**Comparison with Django:**
+
+| Django | Next.js (This Setup) |
+|--------|---------------------|
+| `RotatingFileHandler` | Size-based rotation with `pino-roll` |
+| `TimedRotatingFileHandler` | Time-based rotation with `pino-roll` |
+| `maxBytes` | `LOG_FILE_MAX_SIZE` (10M, 100K, 1G) |
+| `backupCount` | `LOG_FILE_MAX_FILES` |
+| Multiple handlers | Multiple streams (stdout + files) |
+| Separate error logs | ✅ `error.json` file |
+
+**Production Example:**
+
+```env
+# High-traffic application
+LOG_TO_FILE=true
+LOG_FILE_MAX_SIZE=50M
+LOG_FILE_MAX_AGE=1d
+LOG_FILE_MAX_FILES=30
+LOG_LEVEL=info
+```
+
+**Analyzing Logs:**
+
+```bash
+# View JSON logs with jq
+cat logs/app.json | jq
+
+# Filter errors only
+cat logs/app.json | jq 'select(.level >= 50)'
+
+# Search for specific user
+cat logs/app.json | jq 'select(.userId == "123")'
+
+# Tail in real-time with formatting
+tail -f logs/app.json | jq -r '.time + " " + .level + " " + .msg'
+```
+
+**Serverless Deployment:**
+
+File logging is automatically disabled when deploying to:
+- **Vercel**: Logs appear in Vercel Dashboard → Logs tab
+- **AWS Lambda**: Logs sent to CloudWatch Logs automatically
+- **Netlify**: Logs appear in Functions → Function Logs
+- **Google Cloud Functions**: Logs sent to Cloud Logging
+- **Cloudflare Workers**: Logs appear in Cloudflare dashboard
+
+No configuration needed - the logger detects the environment and adapts automatically.
+
+**Integration with Log Aggregation:**
+
+The JSON format works seamlessly with:
+- **Datadog**: Forward logs using Datadog agent or HTTP intake
+- **Elasticsearch**: Use Filebeat to ship logs
+- **CloudWatch**: Use CloudWatch agent (for traditional servers)
+- **Splunk**: Use Splunk forwarder
+- **Grafana Loki**: Use Promtail
+- **Axiom**: Use `@axiomhq/pino` transport
+- **LogFlare**: Use `pino-logflare` transport
+
 ### Troubleshooting
 
 **Logs not appearing:**
@@ -680,6 +791,11 @@ try {
 - This is expected - all logs use JSON format for structured logging
 - JSON logs work with all log aggregation tools (Datadog, CloudWatch, etc.)
 - They're still readable and contain all the information you need
+
+**File logs not being created:**
+- Verify `LOG_TO_FILE=true` is set
+- Check log directory permissions
+- Look for errors in terminal output
 
 ## Email System
 
@@ -1293,6 +1409,9 @@ const updated = await prisma.user.update({
 - ✅ Unified logging across entire Next.js stack
 - ✅ Pretty printing in development
 - ✅ JSON logs in production
+- ✅ File logging with rotation (Django-style)
+- ✅ Size-based and time-based rotation policies
+- ✅ Separate error log files
 - ✅ Automatic sensitive data redaction
 - ✅ Child loggers for contextual logging
 - ✅ Configurable log levels

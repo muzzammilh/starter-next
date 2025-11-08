@@ -1,6 +1,6 @@
 {
   "name": "starter-next",
-  "version": "0.13.1",
+  "version": "0.14.0",
   "private": false,
   "scripts": {
     "dev": "next dev",
@@ -25,6 +25,7 @@
     "next-logger": "^5.0.2",
     "nodemailer": "^7.0.10",
     "pino": "^10.1.0",
+    "pino-roll": "^4.0.0",
     "prisma": "^6.18.0",
     "react": "19.2.0",
     "react-dom": "19.2.0",
