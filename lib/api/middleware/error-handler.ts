@@ -17,9 +17,9 @@ export interface ApiError {
 }
 
 /**
- * Standard error response format
+ * Standard error response format for error handler
  */
-export interface ErrorResponse {
+interface ErrorHandlerResponse {
   success: false;
   error: string;
   code?: string;
@@ -43,7 +43,7 @@ export interface ErrorResponse {
  * }
  * ```
  */
-export function handleApiError(error: unknown): NextResponse<ErrorResponse> {
+export function handleApiError(error: unknown): NextResponse<ErrorHandlerResponse> {
   // Prisma errors
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     return handlePrismaError(error);
@@ -68,7 +68,7 @@ export function handleApiError(error: unknown): NextResponse<ErrorResponse> {
  */
 function handlePrismaError(
   error: Prisma.PrismaClientKnownRequestError
-): NextResponse<ErrorResponse> {
+): NextResponse<ErrorHandlerResponse> {
   logger.error({ error: error.message, code: error.code }, 'Prisma error');
   
   switch (error.code) {
@@ -121,7 +121,7 @@ function handlePrismaError(
 /**
  * Handle Zod validation errors
  */
-function handleZodError(error: ZodError): NextResponse<ErrorResponse> {
+function handleZodError(error: ZodError): NextResponse<ErrorHandlerResponse> {
   logger.warn({ errors: error.issues }, 'Validation error');
   
   return NextResponse.json(
@@ -142,7 +142,7 @@ function handleZodError(error: ZodError): NextResponse<ErrorResponse> {
 /**
  * Handle custom API errors
  */
-function handleCustomError(error: ApiError): NextResponse<ErrorResponse> {
+function handleCustomError(error: ApiError): NextResponse<ErrorHandlerResponse> {
   const statusCode = error.statusCode || 500;
   
   logger.error(
@@ -165,7 +165,7 @@ function handleCustomError(error: ApiError): NextResponse<ErrorResponse> {
 /**
  * Handle generic errors
  */
-function handleGenericError(error: unknown): NextResponse<ErrorResponse> {
+function handleGenericError(error: unknown): NextResponse<ErrorHandlerResponse> {
   const message = error instanceof Error ? error.message : 'Internal server error';
   
   logger.error({ error: message }, 'Unhandled error');

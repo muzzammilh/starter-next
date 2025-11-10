@@ -4,6 +4,7 @@
  * Allows users to set a new password using a reset token.
  */
 
+import { Suspense } from "react";
 import { ResetPasswordForm } from "@/components/auth/ResetPasswordForm";
 import Link from "next/link";
 
@@ -23,7 +24,9 @@ export default function ResetPasswordPage() {
           </p>
         </div>
 
-        <ResetPasswordForm />
+        <Suspense fallback={<div className="text-center">Loading...</div>}>
+          <ResetPasswordForm />
+        </Suspense>
 
         <p className="text-center text-sm text-gray-600">
           <Link

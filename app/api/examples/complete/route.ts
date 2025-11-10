@@ -17,7 +17,7 @@ const createPostSchema = z.object({
 
 // Wrap handler with automatic middleware
 export const POST = withApiMiddleware(
-  async (request: NextRequest) => {
+  async (request: NextRequest): Promise<NextResponse> => {
     // Check authentication
     const authError = await requireAuth(request);
     if (authError) return authError;
@@ -28,7 +28,7 @@ export const POST = withApiMiddleware(
     });
     
     if (!validation.success) {
-      return validation.error;
+      return validation.error!;
     }
     
     const { title, content } = validation.data!.body!;

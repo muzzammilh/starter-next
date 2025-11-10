@@ -26,6 +26,7 @@ A modern, production-ready Next.js boilerplate with TypeScript, Tailwind CSS, an
 - **[Email System](./docs/email.md)** - Multi-provider email configuration
 - **[Logging](./docs/logging.md)** - Pino logging with file rotation
 - **[API Middleware](./docs/api-middleware.md)** - Rate limiting, CORS, validation, error handling
+- **[File Upload](./docs/file-upload.md)** - Multi-provider file storage system
 - **[Configuration](./docs/configuration.md)** - Environment variables and app configuration
 
 ## Quick Start
@@ -115,6 +116,20 @@ Open [http://localhost:3000](http://localhost:3000) to see your app.
 **⚠️ Important**: Rate limiting uses in-memory storage by default. For serverless deployments (Vercel, AWS Lambda, Netlify), you must use an external store like Vercel KV or Upstash Redis. See the [API Middleware Guide](./docs/api-middleware.md) for details.
 
 [→ Read the API Middleware Guide](./docs/api-middleware.md)
+
+### File Upload System
+- ✅ Provider-agnostic architecture (switch between local, S3, Cloudinary)
+- ✅ Local storage by default (zero configuration)
+- ✅ AWS S3 and Cloudinary support for production
+- ✅ File validation (size, type) with customizable rules
+- ✅ React components with drag-and-drop support
+- ✅ Upload presets for common use cases
+- ✅ Database integration for file tracking
+- ✅ Complete REST API with authentication
+
+**⚠️ Note**: Local storage is not suitable for serverless deployments. Use S3 or Cloudinary for Vercel, AWS Lambda, or similar platforms.
+
+[→ Read the File Upload Guide](./docs/file-upload.md)
 
 ### Development Tools
 - ✅ TypeScript with strict mode
@@ -237,6 +252,30 @@ export const POST = withApiMiddleware(
 );
 ```
 
+### Upload a File
+
+```typescript
+import { storage } from '@/lib/storage';
+
+// Upload with default settings
+const result = await storage.upload(file);
+console.log(result.url);
+
+// Upload with preset
+const result = await storage.upload(file, storagePresets.avatar);
+```
+
+### Use Upload Component
+
+```tsx
+import { FileUpload } from '@/components/upload/FileUpload';
+
+<FileUpload
+  onUploadComplete={(result) => console.log(result.url)}
+  preset="avatar"
+/>
+```
+
 ## Production Deployment
 
 ### Checklist
@@ -247,6 +286,9 @@ export const POST = withApiMiddleware(
 - [ ] Set up email provider
 - [ ] Enable HTTPS
 - [ ] Configure logging for production (`LOG_LEVEL="info"`)
+- [ ] **Choose storage provider** (S3 or Cloudinary for serverless)
+- [ ] **Set up rate limiting external store** (Vercel KV or Upstash for serverless)
+- [ ] Run database migrations (`npm run db:migrate`)
 - [ ] Test all features in production environment
 
 ### Recommended Platforms

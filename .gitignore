@@ -29,6 +29,10 @@ yarn-error.log*
 .env*.local
 .env
 
+# uploads (local storage)
+/public/uploads/*
+!/public/uploads/.gitkeep
+
 # vercel
 .vercel
 
@@ -48,3 +52,7 @@ next-env.d.ts
 /logs
 *.log
 *.log.*
+
+# uploads (local storage)
+/public/uploads/*
+!/public/uploads/.gitkeep

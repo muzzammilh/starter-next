@@ -31,6 +31,7 @@ model User {
   // Application relations (add your own here)
   profile  UserProfile?
   passwordResetTokens PasswordResetToken[]
+  files    File[]
 
   @@map("users")
 }
@@ -107,6 +108,30 @@ model UserProfile {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("user_profiles")
+}
+
+// File uploads tracking
+// TODO: Customize based on your needs
+model File {
+  id        String   @id @default(cuid())
+  userId    String
+  filename  String
+  size      Int
+  mimeType  String
+  url       String
+  path      String   // Storage path/key
+  provider  String   // Storage provider used (local, s3, cloudinary)
+  folder    String?  // Optional folder/category
+  metadata  String?  // JSON string for additional metadata
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([provider])
+  @@index([folder])
+  @@map("files")
 }
 
 // Add more models as needed for your application

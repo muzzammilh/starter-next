@@ -23,7 +23,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
 
-interface RateLimitConfig {
+export interface RateLimitConfig {
   /**
    * Maximum number of requests allowed in the time window
    * @default 10
