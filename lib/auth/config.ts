@@ -12,6 +12,7 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import type { Adapter } from "next-auth/adapters";
 import { prisma } from "@lib/db/prisma";
 import { authProviders } from "./options";
+import "./types"; // Import type extensions
 
 export const authOptions: NextAuthConfig = {
   adapter: PrismaAdapter(prisma) as Adapter,
@@ -31,16 +32,18 @@ export const authOptions: NextAuthConfig = {
   
   callbacks: {
     async jwt({ token, user }) {
-      // Add user ID to token on signin
+      // Add user ID and role to token on signin
       if (user) {
         token.id = user.id;
+        token.role = (user as any).role || "user";
       }
       return token;
     },
     async session({ session, token }) {
-      // Add user ID from token to session
+      // Add user ID and role from token to session
       if (session.user && token.id) {
         session.user.id = token.id as string;
+        session.user.role = (token.role as "user" | "admin" | "manager" | "guest") || "user";
       }
       return session;
     },

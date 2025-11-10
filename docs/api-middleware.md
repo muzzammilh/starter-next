@@ -436,11 +436,14 @@ export async function DELETE(request: NextRequest) {
   const authError = await requireRole(request, 'admin');
   if (authError) return authError;
   
-  // User is admin
+  // User is admin, continue with logic
+  return NextResponse.json({ success: true });
 }
 ```
 
-**Note**: Role checking requires implementing role storage in your user model.
+Available roles: `user` (default), `admin`, `manager`, `guest`
+
+Users can be promoted to different roles via Prisma Studio. See the Authentication documentation for details.
 
 ## Error Handling
 

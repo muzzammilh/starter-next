@@ -91,3 +91,64 @@ export async function requireAuth() {
   
   return session;
 }
+
+/**
+ * Get current user's role
+ * Returns "user" as default if role is not set
+ */
+export async function getCurrentUserRole(): Promise<string> {
+  const session = await getCurrentSession();
+  return (session?.user as any)?.role || "user";
+}
+
+/**
+ * Check if current user has a specific role
+ */
+export async function hasRole(role: string): Promise<boolean> {
+  const userRole = await getCurrentUserRole();
+  return userRole === role;
+}
+
+/**
+ * Check if current user is an admin
+ */
+export async function isAdmin(): Promise<boolean> {
+  return await hasRole("admin");
+}
+
+/**
+ * Check if current user is a manager
+ */
+export async function isManager(): Promise<boolean> {
+  return await hasRole("manager");
+}
+
+/**
+ * Check if current user has admin or manager role
+ */
+export async function isAdminOrManager(): Promise<boolean> {
+  const userRole = await getCurrentUserRole();
+  return userRole === "admin" || userRole === "manager";
+}
+
+/**
+ * Require specific role - throws error if user doesn't have the role
+ * Use this to protect Server Components and API routes
+ */
+export async function requireRole(role: string) {
+  const session = await requireAuth();
+  const userRole = (session.user as any)?.role || "user";
+  
+  if (userRole !== role) {
+    throw new Error("Forbidden");
+  }
+  
+  return session;
+}
+
+/**
+ * Require admin role - throws error if user is not an admin
+ */
+export async function requireAdmin() {
+  return await requireRole("admin");
+}

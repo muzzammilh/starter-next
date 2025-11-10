@@ -54,6 +54,7 @@ Open [http://localhost:3000](http://localhost:3000) to see your app.
 - ✅ NextAuth.js v5 with Prisma adapter
 - ✅ OAuth providers: Google, Facebook, Apple, X (Twitter), GitHub
 - ✅ Email/password authentication with verification
+- ✅ Role-based access control (user, admin, manager, guest)
 - ✅ Locked auth schema (User, Account, Session, VerificationToken)
 - ✅ Flexible extension pattern (UserProfile example)
 - ✅ Type-safe session access

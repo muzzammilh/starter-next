@@ -16,6 +16,13 @@ datasource db {
 // Add your app data in separate tables below
 // ============================================
 
+enum UserRole {
+  user
+  admin
+  manager
+  guest
+}
+
 model User {
   id            String    @id @default(cuid())
   name          String?
@@ -23,6 +30,7 @@ model User {
   emailVerified DateTime?
   image         String?
   passwordHash  String?   // For credentials authentication
+  role          UserRole  @default(user) // User role for authorization
 
   // NextAuth relations only
   accounts Account[]

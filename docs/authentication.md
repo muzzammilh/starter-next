@@ -171,6 +171,59 @@ export async function GET() {
 }
 ```
 
+## User Roles
+
+This boilerplate includes a role-based access control system with four predefined roles:
+
+- **`user`** (default) - Regular authenticated user with standard access
+- **`admin`** - Full system access, can manage everything
+- **manager** - Middle-tier access, can manage users and content
+- **`guest`** - Restricted access, useful for trial/read-only users
+
+### Setting User Roles
+
+By default, all new users are assigned the `user` role. To promote a user to admin or another role:
+
+1. Run Prisma Studio: `npx prisma studio`
+2. Navigate to the `User` table
+3. Find the user and change their `role` field
+4. Save the changes
+
+The user will have the new role on their next login.
+
+### Using Roles in Code
+
+```tsx
+// Server Component - Check if user is admin
+import { isAdmin, requireAdmin } from "@/lib/auth/utils";
+
+export default async function AdminPage() {
+  await requireAdmin(); // Throws error if not admin
+  return <div>Admin Dashboard</div>;
+}
+
+// Server Component - Check role conditionally
+export default async function DashboardPage() {
+  const admin = await isAdmin();
+  return (
+    <div>
+      {admin && <AdminPanel />}
+      <UserContent />
+    </div>
+  );
+}
+
+// API Route - Require specific role
+import { requireRole } from "@/lib/api/middleware/auth";
+
+export async function DELETE(request: NextRequest) {
+  const authError = await requireRole(request, "admin");
+  if (authError) return authError;
+  
+  // Admin-only logic here
+}
+```
+
 ## Available Auth Utilities
 
 ### Server-Side
@@ -181,6 +234,13 @@ Use in Server Components, API routes, Server Actions:
 - `upsertUserProfile(userId, data)` - Create/update user profile
 - `isAuthenticated()` - Check if user is authenticated
 - `requireAuth()` - Require authentication (throws if not authenticated)
+- `getCurrentUserRole()` - Get current user's role
+- `hasRole(role)` - Check if user has specific role
+- `isAdmin()` - Check if user is admin
+- `isManager()` - Check if user is manager
+- `isAdminOrManager()` - Check if user is admin or manager
+- `requireRole(role)` - Require specific role (throws if not authorized)
+- `requireAdmin()` - Require admin role (throws if not admin)
 
 ### Client-Side
 Use in Client Components:

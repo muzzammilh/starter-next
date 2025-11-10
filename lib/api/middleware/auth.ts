@@ -94,9 +94,8 @@ export async function requireRole(
     );
   }
   
-  // TODO: Implement role checking based on your user model
-  // This is a placeholder - adjust based on how you store roles
-  const userRole = (session.user as any).role;
+  // Check user role from session
+  const userRole = (session.user as any).role || "user";
   
   if (userRole !== role) {
     logger.warn(
