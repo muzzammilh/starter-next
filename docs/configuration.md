@@ -14,7 +14,7 @@ NEXT_PUBLIC_APP_NAME="Your App Name"
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
 
 # Database
-DATABASE_URL="file:./data/local.db"
+DATABASE_URL="postgresql://user:password@localhost:5432/dbname"
 
 # Authentication
 NEXTAUTH_SECRET="your-secret-here"
@@ -110,26 +110,9 @@ console.log(config.auth.providers.google); // true/false
 
 ## Database Configuration
 
-### SQLite (Development)
+### PostgreSQL
 
-Default configuration for local development:
-
-```prisma
-// prisma/schema.prisma
-datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
-}
-```
-
-```env
-# .env.local
-DATABASE_URL="file:./data/local.db"
-```
-
-### PostgreSQL (Production)
-
-For production environments:
+For both development and production environments:
 
 ```prisma
 // prisma/schema.prisma

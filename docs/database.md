@@ -5,7 +5,6 @@ This boilerplate uses Prisma ORM with support for SQLite (local development) and
 ## Features
 
 - 🗄️ **Prisma ORM**: Type-safe database access
-- 🔧 **SQLite**: Zero-config local development
 - 🚀 **PostgreSQL**: Production-ready database
 - 📝 **Migrations**: Version-controlled schema changes
 - 🎨 **Prisma Studio**: Visual database editor
@@ -13,18 +12,12 @@ This boilerplate uses Prisma ORM with support for SQLite (local development) and
 
 ## Quick Start
 
-### Local Development (SQLite - Default)
+## Quick Start
 
-No additional setup needed:
-- Database file is created automatically at `./data/local.db`
-- Perfect for getting started quickly
-- No external dependencies required
+### Database Setup (PostgreSQL)
 
-### Production (PostgreSQL)
-
-1. Update `prisma/schema.prisma` - change `provider = "sqlite"` to `provider = "postgresql"`
-2. Update `DATABASE_URL` in `.env.local` with your PostgreSQL connection string
-3. Run migrations: `npm run db:migrate`
+1. Update `DATABASE_URL` in `.env.local` with your PostgreSQL connection string
+2. Run migrations: `npm run db:migrate`
 
 ## Database Commands
 
@@ -79,8 +72,9 @@ await prisma.user.delete({
 The database schema is defined in `prisma/schema.prisma`:
 
 ```prisma
+```prisma
 datasource db {
-  provider = "sqlite"  // or "postgresql" for production
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -99,50 +93,7 @@ model User {
 }
 ```
 
-## Switching to PostgreSQL
 
-### 1. Install PostgreSQL
-
-Choose one of these options:
-- **Local**: Install PostgreSQL on your machine
-- **Hosted**: Use a service like:
-  - [Supabase](https://supabase.com) (Free tier available)
-  - [Neon](https://neon.tech) (Serverless PostgreSQL)
-  - [Railway](https://railway.app) (Easy deployment)
-  - [Vercel Postgres](https://vercel.com/storage/postgres)
-
-### 2. Update Schema
-
-Edit `prisma/schema.prisma`:
-
-```prisma
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-```
-
-### 3. Update Connection String
-
-Update `DATABASE_URL` in `.env.local`:
-
-```env
-# PostgreSQL format
-DATABASE_URL="postgresql://user:password@localhost:5432/dbname"
-
-# Or with connection pooling (recommended for serverless)
-DATABASE_URL="postgresql://user:password@host:5432/dbname?pgbouncer=true"
-```
-
-### 4. Run Migrations
-
-```bash
-# Generate Prisma Client
-npm run db:generate
-
-# Create and apply migrations
-npm run db:migrate
-```
 
 ## Database Migrations
 
