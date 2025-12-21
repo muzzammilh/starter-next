@@ -31,12 +31,21 @@ export const authOptions: NextAuthConfig = {
   },
   
   callbacks: {
-    async jwt({ token, user }) {
-      // Add user ID and role to token on signin
+    async jwt({ token, user, trigger }) {
+      // Add user ID to token on signin
       if (user) {
         token.id = user.id;
-        token.role = (user as any).role || "user";
       }
+
+      // Fetch role from database on signin or when token is updated
+      if (user || trigger === "update") {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.id as string },
+          select: { role: true },
+        });
+        token.role = dbUser?.role || "user";
+      }
+
       return token;
     },
     async session({ session, token }) {

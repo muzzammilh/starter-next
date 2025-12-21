@@ -31,11 +31,13 @@ model User {
   image         String?
   passwordHash  String?   // For credentials authentication
   role          UserRole  @default(user) // User role for authorization
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   // NextAuth relations only
   accounts Account[]
   sessions Session[]
-  
+
   // Application relations (add your own here)
   profile  UserProfile?
   passwordResetTokens PasswordResetToken[]

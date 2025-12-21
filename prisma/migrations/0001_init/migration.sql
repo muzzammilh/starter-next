@@ -10,6 +10,8 @@ CREATE TABLE "users" (
     "image" TEXT,
     "passwordHash" TEXT,
     "role" "UserRole" NOT NULL DEFAULT 'user',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "users_pkey" PRIMARY KEY ("id")
 );
