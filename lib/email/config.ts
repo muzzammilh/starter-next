@@ -41,9 +41,10 @@ function detectProvider(): EmailProvider {
  */
 export function getEmailConfig(): EmailConfig {
   const provider = detectProvider();
-  const from = process.env.EMAIL_FROM || process.env.NEXT_PUBLIC_APP_NAME 
-    ? `${process.env.NEXT_PUBLIC_APP_NAME} <noreply@example.com>`
-    : 'noreply@example.com';
+  const from = process.env.EMAIL_FROM
+    || (process.env.NEXT_PUBLIC_APP_NAME 
+      ? `${process.env.NEXT_PUBLIC_APP_NAME} <noreply@example.com>` 
+      : 'noreply@example.com');
 
   const config: EmailConfig = {
     provider,
