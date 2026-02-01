@@ -1,5 +1,5 @@
 /**
- * Middleware for route protection and role-based redirects
+ * Proxy for route protection and role-based redirects
  *
  * - Protects /admin/* routes (requires admin role)
  * - Redirects authenticated users from /signin and / based on role
@@ -11,7 +11,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Get token from JWT (works in Edge runtime)
