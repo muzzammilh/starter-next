@@ -1,11 +1,7 @@
-/**
- * Admin Dashboard Page
- *
- * Displays analytics overview with user stats and signup trends.
- */
-
 import { prisma } from "@/lib/db/prisma";
 import { StatsCard } from "@/components/admin/StatsCard";
+import { RecentActivityFeed } from "@/components/admin/RecentActivityFeed";
+import { Users, Shield, TrendingUp } from "lucide-react";
 
 async function getAnalytics() {
   const thirtyDaysAgo = new Date();
@@ -24,15 +20,18 @@ async function getAnalytics() {
         },
       },
       select: {
+        id: true,
+        name: true,
+        email: true,
         createdAt: true,
       },
       orderBy: {
-        createdAt: "asc",
+        createdAt: "desc",
       },
+      take: 10,
     }),
   ]);
 
-  // Group signups by date
   const signupsByDate = recentUsers.reduce(
     (acc, user) => {
       const date = user.createdAt.toISOString().split("T")[0];
@@ -53,6 +52,12 @@ async function getAnalytics() {
       count,
     })),
     newUsersThisMonth: recentUsers.length,
+    recentSignups: recentUsers.map(u => ({
+      id: u.id,
+      title: u.name || u.email || "Unknown",
+      subtitle: u.email || "",
+      timestamp: u.createdAt,
+    })),
   };
 }
 
@@ -63,55 +68,69 @@ export default async function AdminDashboardPage() {
     analytics.roleDistribution.find((r) => r.role === "admin")?.count || 0;
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <h1 className="text-3xl font-bold text-zinc-900 dark:text-white mb-8">
-        Analytics Dashboard
-      </h1>
+    <div className="max-w-7xl mx-auto">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-card-foreground">
+          Admin Dashboard
+        </h1>
+        <p className="text-sm text-muted-foreground mt-2">
+          System overview and analytics
+        </p>
+      </div>
 
-      {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <StatsCard title="Total Users" value={analytics.totalUsers} />
-        <StatsCard title="Admins" value={adminCount} />
+        <StatsCard
+          title="Total Users"
+          value={analytics.totalUsers}
+          icon={<Users className="h-6 w-6 text-primary" />}
+        />
+        <StatsCard
+          title="Admins"
+          value={adminCount}
+          icon={<Shield className="h-6 w-6 text-primary" />}
+        />
         <StatsCard
           title="New This Month"
           value={analytics.newUsersThisMonth}
           subtitle="Last 30 days"
+          icon={<TrendingUp className="h-6 w-6 text-primary" />}
         />
       </div>
 
-      {/* Role Distribution */}
-      <section className="bg-white dark:bg-zinc-800 rounded-lg p-6 mb-6 border border-zinc-200 dark:border-zinc-700">
-        <h2 className="text-xl font-semibold text-zinc-900 dark:text-white mb-4">
-          Role Distribution
-        </h2>
-        <div className="space-y-3">
-          {analytics.roleDistribution.length === 0 ? (
-            <p className="text-zinc-500 dark:text-zinc-400">No users yet</p>
-          ) : (
-            analytics.roleDistribution.map((role) => (
-              <div
-                key={role.role}
-                className="flex justify-between items-center py-2 border-b border-zinc-100 dark:border-zinc-700 last:border-0"
-              >
-                <span className="text-zinc-700 dark:text-zinc-300 capitalize">
-                  {role.role}
-                </span>
-                <span className="font-semibold text-zinc-900 dark:text-white">
-                  {role.count}
-                </span>
-              </div>
-            ))
-          )}
-        </div>
-      </section>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <section className="rounded-lg border bg-card text-card-foreground p-6">
+          <h2 className="text-xl font-semibold mb-4">Role Distribution</h2>
+          <div className="space-y-3">
+            {analytics.roleDistribution.length === 0 ? (
+              <p className="text-muted-foreground">No users yet</p>
+            ) : (
+              analytics.roleDistribution.map((role) => (
+                <div
+                  key={role.role}
+                  className="flex justify-between items-center py-2 border-b last:border-0"
+                >
+                  <span className="capitalize text-card-foreground">
+                    {role.role}
+                  </span>
+                  <span className="font-semibold text-card-foreground">
+                    {role.count}
+                  </span>
+                </div>
+              ))
+            )}
+          </div>
+        </section>
 
-      {/* Signups Over Time */}
-      <section className="bg-white dark:bg-zinc-800 rounded-lg p-6 border border-zinc-200 dark:border-zinc-700">
-        <h2 className="text-xl font-semibold text-zinc-900 dark:text-white mb-4">
-          Signups Over Time
-        </h2>
+        <RecentActivityFeed
+          title="Recent Signups"
+          items={analytics.recentSignups}
+        />
+      </div>
+
+      <section className="rounded-lg border bg-card text-card-foreground p-6">
+        <h2 className="text-xl font-semibold mb-4">Signups Over Time</h2>
         {analytics.signupsOverTime.length === 0 ? (
-          <p className="text-zinc-500 dark:text-zinc-400">
+          <p className="text-muted-foreground">
             No signups in the last 30 days
           </p>
         ) : (
@@ -119,23 +138,23 @@ export default async function AdminDashboardPage() {
             {analytics.signupsOverTime.map((day) => (
               <div
                 key={day.date}
-                className="flex items-center gap-4 py-2 border-b border-zinc-100 dark:border-zinc-700 last:border-0"
+                className="flex items-center gap-4 py-2 border-b last:border-0"
               >
-                <span className="text-sm text-zinc-500 dark:text-zinc-400 w-28">
+                <span className="text-sm text-muted-foreground w-28">
                   {new Date(day.date).toLocaleDateString("en-US", {
                     month: "short",
                     day: "numeric",
                   })}
                 </span>
-                <div className="flex-1 bg-zinc-100 dark:bg-zinc-700 rounded-full h-4 overflow-hidden">
+                <div className="flex-1 bg-muted rounded-full h-4 overflow-hidden">
                   <div
-                    className="bg-blue-600 h-full rounded-full"
+                    className="bg-primary h-full rounded-full"
                     style={{
                       width: `${Math.min(100, day.count * 10)}%`,
                     }}
                   />
                 </div>
-                <span className="text-sm font-medium text-zinc-900 dark:text-white w-8 text-right">
+                <span className="text-sm font-medium text-card-foreground w-8 text-right">
                   {day.count}
                 </span>
               </div>
