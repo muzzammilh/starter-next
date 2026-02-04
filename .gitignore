@@ -57,3 +57,5 @@ next-env.d.ts
 # uploads (local storage)
 /public/uploads/*
 !/public/uploads/.gitkeep
+
+sales-buddy

@@ -22,19 +22,19 @@ export default function SignUpPage() {
       <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow">
         <div className="text-center">
           <h1 className="text-3xl font-bold">{config.app.name}</h1>
-          <p className="mt-2 text-gray-600">Create your account</p>
+          <p className="mt-2 text-gray-800">Create your account</p>
         </div>
 
         <SignUpForm />
 
-        <p className="text-center text-sm text-gray-600">
+        <p className="text-center text-sm text-gray-700">
           Already have an account?{" "}
           <Link href="/signin" className="text-blue-600 hover:text-blue-700 font-medium">
             Sign in
           </Link>
         </p>
 
-        <p className="text-center text-sm text-gray-600">
+        <p className="text-center text-sm text-gray-700">
           By signing up, you agree to our Terms of Service and Privacy Policy.
         </p>
       </div>

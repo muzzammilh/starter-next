@@ -26,7 +26,7 @@ export default async function SignInPage({
       <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow">
         <div className="text-center">
           <h1 className="text-3xl font-bold">{config.app.name}</h1>
-          <p className="mt-2 text-gray-600">Sign in to your account</p>
+          <p className="mt-2 text-gray-800">Sign in to your account</p>
         </div>
 
         {/* Success/Error Messages */}
@@ -56,7 +56,7 @@ export default async function SignInPage({
                   <div className="w-full border-t border-gray-300"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">Or continue with</span>
+                  <span className="px-2 bg-white text-gray-600">Or continue with</span>
                 </div>
               </div>
             )}
@@ -147,7 +147,7 @@ export default async function SignInPage({
         </div>
 
         {providers.credentials && (
-          <p className="text-center text-sm text-gray-600">
+          <p className="text-center text-sm text-gray-700">
             Don't have an account?{" "}
             <a href="/signup" className="text-blue-600 hover:text-blue-700 font-medium">
               Sign up
@@ -155,7 +155,7 @@ export default async function SignInPage({
           </p>
         )}
 
-        <p className="text-center text-sm text-gray-600">
+        <p className="text-center text-sm text-gray-700">
           By signing in, you agree to our Terms of Service and Privacy Policy.
         </p>
       </div>
