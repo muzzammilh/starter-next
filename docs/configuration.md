@@ -2,7 +2,7 @@
 
 Learn how to configure your Next.js application for different environments and use cases.
 
-## Environment Variables
+## Storage Providers
 
 All configurable values should be stored in `.env.local`. See `.env.example` for available options.
 
@@ -69,6 +69,63 @@ APPLE_SECRET="your-secret"
 # Credentials Auth (for testing)
 ENABLE_CREDENTIALS_AUTH="true"
 ```
+
+## Storage Providers
+
+### Local Storage (Default)
+
+Files are stored in `public/uploads` directory.
+
+```env
+STORAGE_PROVIDER=local
+UPLOAD_DIR=./public/uploads
+```
+
+### AWS S3
+
+Store files in Amazon S3 or S3-compatible services.
+
+```env
+STORAGE_PROVIDER=s3
+AWS_REGION=us-east-1
+AWS_S3_BUCKET=your-bucket-name
+AWS_ACCESS_KEY_ID=your-access-key
+AWS_SECRET_ACCESS_KEY=your-secret-key
+
+# Optional: For S3-compatible services
+AWS_S3_ENDPOINT=https://nyc3.digitaloceanspaces.com
+```
+
+### Cloudinary
+
+Store files in Cloudinary with automatic image optimization.
+
+```env
+STORAGE_PROVIDER=cloudinary
+CLOUDINARY_CLOUD_NAME=your-cloud-name
+CLOUDINARY_API_KEY=your-api-key
+CLOUDINARY_API_SECRET=your-api-secret
+CLOUDINARY_FOLDER=uploads
+```
+
+### Cloudflare R2
+
+Store files in Cloudflare R2 with zero egress fees.
+
+```env
+STORAGE_PROVIDER=r2
+R2_ACCOUNT_ID=your-cloudflare-account-id
+R2_BUCKET_NAME=your-bucket-name
+R2_ACCESS_KEY_ID=your-access-key-id
+R2_SECRET_ACCESS_KEY=your-secret-access-key
+R2_PUBLIC_DOMAIN=https://cdn.yourdomain.com  # Optional
+R2_JURISDICTION=auto  # Optional: auto, eu, fedramp
+```
+
+**Finding Account ID:**
+
+1. Go to Cloudflare Dashboard
+2. Right sidebar → **API** → **Account ID**
 
 ## App Configuration
 

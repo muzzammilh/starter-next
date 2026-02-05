@@ -32,9 +32,9 @@ function parseFileSize(sizeStr: string | undefined, defaultSize: number): number
 export const storageConfig = {
   /**
    * Default storage provider
-   * Options: 'local', 's3', 'cloudinary'
+   * Options: 'local', 's3', 'cloudinary', 'r2'
    */
-  provider: (process.env.STORAGE_PROVIDER || 'local') as 'local' | 's3' | 'cloudinary',
+  provider: (process.env.STORAGE_PROVIDER || 'local') as 'local' | 's3' | 'cloudinary' | 'r2',
   
   /**
    * File size limits (configurable via environment variables)
@@ -100,6 +100,18 @@ export const storageConfig = {
     apiKey: process.env.CLOUDINARY_API_KEY || '',
     apiSecret: process.env.CLOUDINARY_API_SECRET || '',
     folder: process.env.CLOUDINARY_FOLDER || 'uploads',
+  },
+
+  /**
+   * Cloudflare R2 configuration
+   */
+  r2: {
+    accountId: process.env.R2_ACCOUNT_ID || '',
+    bucketName: process.env.R2_BUCKET_NAME || '',
+    accessKeyId: process.env.R2_ACCESS_KEY_ID || '',
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || '',
+    publicDomain: process.env.R2_PUBLIC_DOMAIN,
+    jurisdiction: process.env.R2_JURISDICTION || 'auto',
   },
 } as const;
 

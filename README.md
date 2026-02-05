@@ -119,16 +119,16 @@ Open [http://localhost:3000](http://localhost:3000) to see your app.
 [→ Read the API Middleware Guide](./docs/api-middleware.md)
 
 ### File Upload System
-- ✅ Provider-agnostic architecture (switch between local, S3, Cloudinary)
+- ✅ Provider-agnostic architecture (switch between local, S3, Cloudinary, R2)
 - ✅ Local storage by default (zero configuration)
-- ✅ AWS S3 and Cloudinary support for production
+- ✅ AWS S3, Cloudinary, and R2 support for production
 - ✅ File validation (size, type) with customizable rules
 - ✅ React components with drag-and-drop support
 - ✅ Upload presets for common use cases
 - ✅ Database integration for file tracking
 - ✅ Complete REST API with authentication
 
-**⚠️ Note**: Local storage is not suitable for serverless deployments. Use S3 or Cloudinary for Vercel, AWS Lambda, or similar platforms.
+**⚠️ Note**: Local storage is not suitable for serverless deployments. Use S3, Cloudinary, or R2 for Vercel, AWS Lambda, or similar platforms.
 
 [→ Read the File Upload Guide](./docs/file-upload.md)
 
@@ -287,7 +287,7 @@ import { FileUpload } from '@/components/upload/FileUpload';
 - [ ] Set up email provider
 - [ ] Enable HTTPS
 - [ ] Configure logging for production (`LOG_LEVEL="info"`)
-- [ ] **Choose storage provider** (S3 or Cloudinary for serverless)
+- [ ] **Choose storage provider** (S3/Cloudinary/R2 for serverless)
 - [ ] **Set up rate limiting external store** (Vercel KV or Upstash for serverless)
 - [ ] Run database migrations (`npm run db:migrate`)
 - [ ] Test all features in production environment

@@ -1,12 +1,12 @@
 # File Upload System
 
-A flexible, provider-agnostic file upload system that works seamlessly with local storage, AWS S3, and Cloudinary.
+A flexible, provider-agnostic file upload system that works seamlessly with local storage, AWS S3, Cloudinary, and Cloudflare R2.
 
 ## Features
 
 - 🔄 **Provider-Agnostic** - Switch between storage providers without changing code
 - 📁 **Local Storage** - Default option, perfect for development
-- ☁️ **Cloud Storage** - S3 and Cloudinary support for production
+- ☁️ **Cloud Storage** - S3, Cloudinary, and R2 support for production
 - ✅ **Validation** - File size and type validation
 - 🎨 **UI Components** - Ready-to-use React components
 - 🔒 **Secure** - Authentication required, rate limiting enabled
@@ -130,6 +130,57 @@ CLOUDINARY_API_KEY=your-api-key
 CLOUDINARY_API_SECRET=your-api-secret
 CLOUDINARY_FOLDER=uploads
 ```
+
+### Cloudflare R2
+
+Store files in Cloudflare R2 with zero egress fees and S3-compatible API.
+
+**Pros:**
+- Zero egress bandwidth costs
+- S3-compatible API
+- Global edge network (330+ data centers)
+- Jurisdictional data residency options (EU, FedRAMP)
+- Lower cost than AWS S3 for high-traffic applications
+
+**Setup:**
+```bash
+npm install @aws-sdk/client-s3 @aws-sdk/s3-request-presigner
+```
+
+**Configuration:**
+```env
+STORAGE_PROVIDER=r2
+R2_ACCOUNT_ID=your-cloudflare-account-id
+R2_BUCKET_NAME=your-bucket-name
+R2_ACCESS_KEY_ID=your-access-key-id
+R2_SECRET_ACCESS_KEY=your-secret-access-key
+
+# Optional: Custom domain for public access
+R2_PUBLIC_DOMAIN=https://cdn.yourdomain.com
+
+# Optional: Data jurisdiction (default: auto)
+R2_JURISDICTION=auto  # Options: auto, eu, fedramp
+```
+
+**Getting R2 Credentials:**
+
+1. Go to Cloudflare Dashboard → **R2** → **Overview**
+2. Click **"Manage R2 API Tokens"**
+3. Create token with **"Object Read & Write"** permission
+4. Save **Access Key ID** and **Secret Access Key**
+5. Find your **Account ID** in Cloudflare dashboard (right sidebar → API → Account ID)
+
+**Public Access Options:**
+
+1. **Custom Domain** (Production): Connect custom domain in R2 bucket settings
+2. **r2.dev** (Development): Enable public development URL
+3. **Private Files**: Use presigned URLs (auto-generated)
+
+**Jurisdictional Endpoints:**
+
+- Default: `https://<ACCOUNT_ID>.r2.cloudflarestorage.com`
+- EU: `https://<ACCOUNT_ID>.eu.r2.cloudflarestorage.com`
+- FedRAMP: `https://<ACCOUNT_ID>.fedramp.r2.cloudflarestorage.com`
 
 ## API Usage
 
@@ -680,14 +731,14 @@ CLOUDINARY_FOLDER=uploads
 
 ## Production Checklist
 
-- [ ] Choose appropriate storage provider (S3/Cloudinary for serverless)
+- [ ] Choose appropriate storage provider (S3/Cloudinary/R2 for serverless)
 - [ ] Set up environment variables
 - [ ] Configure CORS for cloud storage
 - [ ] Set appropriate file size limits
 - [ ] Implement file cleanup strategy
 - [ ] Store file metadata in database
 - [ ] Add virus scanning (optional)
-- [ ] Set up CDN (if using S3)
+- [ ] Set up CDN (if using S3/R2)
 - [ ] Monitor storage usage
 - [ ] Implement backup strategy
 
@@ -702,4 +753,5 @@ See working examples at:
 
 - [AWS S3 Documentation](https://docs.aws.amazon.com/s3/)
 - [Cloudinary Documentation](https://cloudinary.com/documentation)
+- [Cloudflare R2 Documentation](https://developers.cloudflare.com/r2/)
 - [Next.js File Upload](https://nextjs.org/docs/app/building-your-application/routing/route-handlers#request-body)
