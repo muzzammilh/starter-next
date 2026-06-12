@@ -1,0 +1,160 @@
+// Prisma Schema
+// Learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// AUTHENTICATION SCHEMA - DO NOT MODIFY
+// These tables are required by NextAuth
+// Add your app data in separate tables below
+// ============================================
+
+enum UserRole {
+  user
+  admin
+  manager
+  guest
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  passwordHash  String?   // For credentials authentication
+  role          UserRole  @default(user) // User role for authorization
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // NextAuth relations only
+  accounts Account[]
+  sessions Session[]
+
+  // Application relations (add your own here)
+  profile  UserProfile?
+  passwordResetTokens PasswordResetToken[]
+  files    File[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expires   DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("password_reset_tokens")
+}
+
+// ============================================
+// APPLICATION SCHEMA - CUSTOMIZE BELOW
+// Add your app-specific models here
+// ============================================
+
+// Example: User profile data (separate from auth)
+// TODO: Customize or remove based on your needs
+model UserProfile {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  name      String?
+  image     String?
+  bio       String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_profiles")
+}
+
+// File uploads tracking
+// TODO: Customize based on your needs
+model File {
+  id        String   @id @default(cuid())
+  userId    String
+  filename  String
+  size      Int
+  mimeType  String
+  url       String
+  path      String   // Storage path/key
+  provider  String   // Storage provider used (local, s3, cloudinary)
+  folder    String?  // Optional folder/category
+  metadata  String?  // JSON string for additional metadata
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([provider])
+  @@index([folder])
+  @@map("files")
+}
+
+// Add more models as needed for your application
+// Example:
+// model Post {
+//   id        String   @id @default(cuid())
+//   title     String
+//   content   String?
+//   published Boolean  @default(false)
+//   authorId  String
+//   author    User     @relation(fields: [authorId], references: [id])
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+//
+//   @@map("posts")
+// }

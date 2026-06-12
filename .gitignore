@@ -4,6 +4,7 @@
 /node_modules
 /.pnp
 .pnp.js
+.yarn/install-state.gz
 
 # testing
 /coverage
@@ -28,9 +29,31 @@ yarn-error.log*
 .env*.local
 .env
 
+# uploads (local storage)
+/public/uploads/*
+!/public/uploads/.gitkeep
+
 # vercel
 .vercel
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# kiro
+.kiro
+.claude
+
+# database
+/data/*.db
+/data/*.db-journal
+*.db
+
+# logs
+/logs
+*.log
+*.log.*
+
+# uploads (local storage)
+/public/uploads/*
+!/public/uploads/.gitkeep
