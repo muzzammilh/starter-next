@@ -33,8 +33,8 @@ Update `.env.local` with your configuration values. At minimum, you'll need:
 NEXT_PUBLIC_APP_NAME="Your App Name"
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
 
-# Database
-DATABASE_URL="file:./data/local.db"
+# Database (PostgreSQL required)
+DATABASE_URL="postgresql://user:password@localhost:5432/mydb"
 
 # Authentication (generate with: openssl rand -base64 32)
 NEXTAUTH_SECRET="your-secret-here"
@@ -95,7 +95,7 @@ Visit the [Database Guide](./database.md) to:
 Visit the [Logging Guide](./logging.md) to:
 - Understand the logging system
 - Configure log levels
-- Set up file logging
+- Set up structured JSON logging
 
 ### Protect Your APIs
 
@@ -111,27 +111,36 @@ Visit the [API Middleware Guide](./api-middleware.md) to:
 
 ```
 ├── app/                      # Next.js app directory
-│   ├── (auth)/              # Auth pages group
-│   │   └── signin/          # Sign-in page
-│   ├── api/auth/            # NextAuth API routes
-│   ├── dashboard/           # Protected route example
+│   ├── (auth)/              # Auth pages (signin, signup, forgot-password, etc.)
+│   ├── admin/               # Admin panel (dashboard, users, SQL console)
+│   ├── api/                 # API routes
+│   ├── dashboard/           # Protected user dashboard
+│   ├── examples/            # Example pages
 │   ├── layout.tsx           # Root layout with metadata
 │   ├── page.tsx             # Home page
 │   └── globals.css          # Global styles
 ├── components/              # Reusable components
-│   └── auth/               # Auth-related components
+│   ├── admin/               # Admin panel components
+│   ├── auth/                # Auth components (SignInButton, forms, etc.)
+│   ├── ui/                  # Shadcn/UI primitives (Button, Card, Input, etc.)
+│   └── upload/              # File upload components
+├── hooks/                   # Custom React hooks
 ├── lib/                     # Shared utilities and configuration
-│   ├── auth/               # Authentication utilities
-│   ├── db/                 # Database client
-│   ├── email/              # Email system
-│   ├── logger/             # Logging utilities
-│   └── config.ts           # App configuration
+│   ├── api/                 # API middleware and utilities
+│   ├── auth/                # Authentication configuration and utilities
+│   ├── db/                  # Prisma database client
+│   ├── email/               # Multi-provider email system
+│   ├── storage/             # Multi-provider file storage
+│   │   └── providers/      # Local, S3, Cloudinary, R2 providers
+│   ├── utils/               # Utility functions (cn helper)
+│   ├── config.ts            # App configuration
+│   └── logger.ts            # Structured JSON logger
 ├── prisma/                  # Database schema and migrations
-│   ├── schema.prisma       # Database schema definition
-│   └── seed.ts             # Database seed script
+│   ├── schema.prisma        # Database schema definition
+│   └── seed.ts              # Database seed script
+├── scripts/                 # Utility scripts
 ├── docs/                    # Documentation
 ├── public/                  # Static assets
-├── data/                    # Local database files (SQLite)
 ├── .env.example             # Environment variables template
 └── .env.local               # Your local environment variables
 ```
@@ -276,7 +285,6 @@ The boilerplate works on any platform that supports Next.js:
 
 ### Production Checklist
 
-- [ ] Switch to PostgreSQL (update `prisma/schema.prisma`)
 - [ ] Set production environment variables
 - [ ] Configure OAuth redirect URIs for production domain
 - [ ] Set up email provider

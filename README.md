@@ -7,10 +7,10 @@ A modern, production-ready Next.js boilerplate with TypeScript, Tailwind CSS, an
 - ⚡️ Next.js 16 with App Router
 - 🎨 Tailwind CSS 4
 - 📘 TypeScript
-- 🗄️ Prisma ORM with SQLite/PostgreSQL support
+- 🗄️ Prisma ORM with PostgreSQL
 - 🔐 NextAuth.js authentication with locked schema design
 - 📧 Email system with multiple provider support (SMTP, Resend, SendGrid, Mailjet)
-- 📝 Pino logging system (structured, high-performance)
+- 📝 Structured JSON logging (zero-dependency, Vercel-ready)
 - 🛡️ API middleware (rate limiting, CORS, validation, error handling)
 - 🔍 ESLint configured
 - 🌙 Dark mode ready
@@ -24,7 +24,7 @@ A modern, production-ready Next.js boilerplate with TypeScript, Tailwind CSS, an
 - **[Authentication](./docs/authentication.md)** - NextAuth.js setup with OAuth and credentials
 - **[Database](./docs/database.md)** - Prisma ORM configuration and usage
 - **[Email System](./docs/email.md)** - Multi-provider email configuration
-- **[Logging](./docs/logging.md)** - Pino logging with file rotation
+- **[Logging](./docs/logging.md)** - Structured JSON logging with redaction
 - **[API Middleware](./docs/api-middleware.md)** - Rate limiting, CORS, validation, error handling
 - **[File Upload](./docs/file-upload.md)** - Multi-provider file storage system
 - **[Configuration](./docs/configuration.md)** - Environment variables and app configuration
@@ -66,9 +66,7 @@ Open [http://localhost:3000](http://localhost:3000) to see your app.
 [→ Read the Authentication Guide](./docs/authentication.md)
 
 ### Database
-- ✅ Prisma ORM configured
-- ✅ SQLite for development (zero setup)
-- ✅ PostgreSQL ready for production
+- ✅ Prisma ORM configured with PostgreSQL
 - ✅ Auth tables pre-configured
 - ✅ Example UserProfile extension
 - ✅ Seed script template
@@ -90,17 +88,12 @@ Open [http://localhost:3000](http://localhost:3000) to see your app.
 [→ Read the Email Guide](./docs/email.md)
 
 ### Logging
-- ✅ next-logger + Pino (patches Next.js internal logger)
-- ✅ Unified logging across entire Next.js stack
-- ✅ Pretty printing in development
-- ✅ JSON logs in production
-- ✅ File logging with rotation (Django-style)
-- ✅ Size-based and time-based rotation policies
-- ✅ Separate error log files
-- ✅ Automatic sensitive data redaction
+- ✅ Zero-dependency structured JSON logging
+- ✅ Automatic sensitive data redaction (passwords, tokens, API keys)
 - ✅ Child loggers for contextual logging
 - ✅ Configurable log levels
-- ✅ Ready for log aggregation services
+- ✅ Vercel and serverless optimized
+- ✅ Compatible with Datadog, Axiom, CloudWatch, and more
 
 [→ Read the Logging Guide](./docs/logging.md)
 
@@ -144,22 +137,37 @@ Open [http://localhost:3000](http://localhost:3000) to see your app.
 
 ```
 ├── app/                      # Next.js app directory
-│   ├── (auth)/              # Auth pages group
+│   ├── (auth)/              # Auth pages (signin, signup, forgot-password, etc.)
+│   ├── admin/               # Admin panel (dashboard, users, SQL console)
 │   ├── api/                 # API routes
-│   ├── dashboard/           # Protected route example
+│   │   ├── admin/           # Admin API endpoints
+│   │   ├── auth/            # NextAuth routes
+│   │   ├── email/           # Email test endpoint
+│   │   ├── examples/        # Example API routes
+│   │   ├── files/           # File management API
+│   │   └── upload/          # File upload API
+│   ├── dashboard/           # Protected user dashboard
 │   └── examples/            # Example pages
 ├── components/              # Reusable components
-│   └── auth/               # Auth-related components
+│   ├── admin/               # Admin panel components
+│   ├── auth/                # Auth components (SignInButton, forms, etc.)
+│   ├── ui/                  # Shadcn/UI primitives (Button, Card, Input, etc.)
+│   └── upload/              # File upload components
+├── hooks/                   # Custom React hooks
 ├── lib/                     # Shared utilities and configuration
-│   ├── auth/               # Authentication utilities
-│   ├── db/                 # Database client
-│   ├── email/              # Email system
-│   ├── logger/             # Logging utilities
-│   └── config.ts           # App configuration
+│   ├── api/                 # API middleware and utilities
+│   ├── auth/                # Authentication configuration and utilities
+│   ├── db/                  # Prisma database client
+│   ├── email/               # Multi-provider email system
+│   ├── storage/             # Multi-provider file storage
+│   │   └── providers/      # Local, S3, Cloudinary, R2 providers
+│   ├── utils/               # Utility functions (cn helper)
+│   ├── config.ts            # App configuration
+│   └── logger.ts            # Structured JSON logger
 ├── prisma/                  # Database schema and migrations
+├── scripts/                 # Utility scripts
 ├── docs/                    # Documentation
-├── public/                  # Static assets
-└── data/                    # Local database files (SQLite)
+└── public/                  # Static assets
 ```
 
 ## Scripts
@@ -190,7 +198,7 @@ All configuration is done through environment variables. Copy `.env.example` to 
 ```env
 NEXT_PUBLIC_APP_NAME="Your App Name"
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
-DATABASE_URL="file:./data/local.db"
+DATABASE_URL="postgresql://user:password@localhost:5432/mydb"
 NEXTAUTH_SECRET="your-secret-here"
 NEXTAUTH_URL="http://localhost:3000"
 ```
@@ -281,7 +289,6 @@ import { FileUpload } from '@/components/upload/FileUpload';
 
 ### Checklist
 
-- [ ] Switch to PostgreSQL (update `prisma/schema.prisma`)
 - [ ] Set production environment variables
 - [ ] Configure OAuth redirect URIs for production domain
 - [ ] Set up email provider

@@ -214,12 +214,14 @@ export default async function DashboardPage() {
 }
 
 // API Route - Require specific role
+// Note: This is the middleware version for API routes (takes request + role)
+// Use requireRole from "@/lib/auth/utils" for Server Components/Actions (takes role only)
 import { requireRole } from "@/lib/api/middleware/auth";
 
 export async function DELETE(request: NextRequest) {
   const authError = await requireRole(request, "admin");
   if (authError) return authError;
-  
+
   // Admin-only logic here
 }
 ```
